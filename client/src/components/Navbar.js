@@ -1,40 +1,22 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu } from 'semantic-ui-react'
+import { Icon, Menu } from 'semantic-ui-react'
 import { AuthContext } from '../context/auth'
-import { refresh } from '../services/api'
+import { interceptToken } from '../services/api'
 
-const Navbar = () => {
+const Navbar = ({toggleSidebar}) => {
     const handleItemClick = (e, { name }) => setaAtiveItem(name)
 
     const {user, logout, login} = useContext(AuthContext);
-    const [inter, setInter] = useState();
 
-  const refreshToken = () => {
-    refresh(user.token).then(
-      res => {
-        localStorage.setItem('userData', JSON.stringify(res.data))
-        login(res.data)
-      },
-      error => {
-        logout();
-      }
-    );
-  }
-
-  const logoutUser = () => {
-    clearInterval(inter);
-    setInter(null);
-    logout();
+  const refreshTokenCallback = (data) => {
+    localStorage.setItem('userData', JSON.stringify(data))
+    login(data)
+    return data.token;
   }
 
   useEffect(() => {
-    if(user != null){
-      setInter(setInterval(refreshToken, 60000))
-    } else {
-      clearInterval(inter);
-      setInter(null)
-    }
+    interceptToken(refreshTokenCallback, logout);
   }, [])
 
     const pathname = window.location.pathname
@@ -43,16 +25,13 @@ const Navbar = () => {
 
     const navbar = user ? (
       <Menu pointing secondary size="massive" color="teal">
-          <Menu.Item
-            name={user.username}
-            active
-            as={Link}
-            to="/"
-          />
+          <Menu.Item onClick={toggleSidebar}>
+            <Icon name="sidebar" size='large'/>
+          </Menu.Item>
           <Menu.Menu position='right'>
           <Menu.Item
             name='logout'
-            onClick={logoutUser}
+            onClick={logout}
           />
           </Menu.Menu>
         </Menu>

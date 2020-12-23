@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/auth';
 import { mailById } from '../../services/api';
 import Loading from '../Loading';
+import { Toast } from '../../utils/toast';
 
 const MailContent = () => {
     const { user } = useContext(AuthContext);
@@ -25,6 +26,7 @@ const MailContent = () => {
           },
           error => {
             console.log(error)
+            Toast("ERROR", "Error loading mail content");
           }
         )
       }, []);

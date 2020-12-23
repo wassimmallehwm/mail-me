@@ -3,6 +3,7 @@ import { Button, Form } from 'semantic-ui-react';
 import { AuthContext } from '../../context/auth';
 import {useForm} from '../../utils/hooks';
 import { login } from '../../services/api';
+import { Toast } from '../../utils/toast';
 
 const Login = ({history}) => {
     const context = useContext(AuthContext)
@@ -24,6 +25,7 @@ const Login = ({history}) => {
             },
             error => {
               console.log(error)
+              Toast("ERROR", "Error login in");
             }
         )
     }

@@ -6,7 +6,7 @@ function generateToken(id){
     return token = jwt.sign({
         _id: id
     }, process.env.JWT_SECRET,
-    {expiresIn: '1hr'})
+    {expiresIn: '1h'})
 }
 
 module.exports.register = async (req, res) => {
@@ -76,8 +76,11 @@ module.exports.login = async (req, res) => {
 
 module.exports.refresh = async (req, res) => {
     try{
-        const user = await User.findById(req.user);
-        const token = generateToken(req.user);
+        const verifUser = jwt.verify(req.header("x-auth-token"), process.env.JWT_SECRET,{
+            ignoreExpiration: true
+        });
+        const user = await User.findById(verifUser._id);
+        const token = generateToken(user._id);
         user.password = undefined;
         user.mails = undefined;
         res.status(200).json({

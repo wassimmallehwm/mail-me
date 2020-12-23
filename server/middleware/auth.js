@@ -13,10 +13,18 @@ const auth = (req, res, next) => {
         req.user = verified._id;
         next();
     } catch(e){
-        console.log(e);
-        res.status(500).json({error: err.message});
+        if(e instanceof jwt.TokenExpiredError){
+            if(req.originalUrl === '/users/refresh'){
+                next();
+            } else {
+                return res.status(401).json({msg : "token_expired"})
+            }
+        } else {
+            res.status(500).json({error: e});
+        }
     }
 }
+
 
 module.exports = auth;
 

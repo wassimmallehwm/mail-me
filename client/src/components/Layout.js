@@ -2,13 +2,13 @@ import React, {useContext} from 'react'
 import { AuthContext } from '../context/auth';
 import SideBar from './SideBar';
 
-const Layout = ({children}) => {
+const Layout = ({sidebarVisible, closeSidebar, children}) => {
     const {user} = useContext(AuthContext);
     return (
         <>
         {user ? (
-            <SideBar>
-            <div className="main-content">
+            <SideBar visible={sidebarVisible}>
+            <div onClick={closeSidebar} className="main-content">
                 {children}
             </div>
             </SideBar>

@@ -1,31 +1,62 @@
 import Axios from 'axios';
 
+const API_URL = "http://localhost:4000/"; //"https://f5cc679aee1c.ngrok.io/";
 
-Axios.interceptors.response.use(null, (error) => {
-	if (
-		error.config &&
-		error.response?.status === 401 && // Use the status code your server returns when token has expired
-		!error.config.__isRetry
-	) {
-    // return new Promise((resolve, reject) => {
-    //   refreshToken(axios, error.config)
-    //     .then((result) => {
-    //       resolve(result);
-    //     })
-    //     .catch((err) => {
-    //       reject(err);
-    //     });
-    // });
-	}
-	return Promise.reject(error);
-});
+
+export const interceptToken = (callback, logout) => {
+    Axios.interceptors.response.use(null, (error) => {
+        if (
+            error.config &&
+            error.response?.status === 401 && 
+            error.response?.data?.msg === "token_expired" &&
+            !error.config.__isRetry
+        ) {
+        return new Promise((resolve, reject) => {
+          refreshToken(error.config, callback, logout)
+            .then((result) => {
+              resolve(result);
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        });
+        }
+        return Promise.reject(error);
+    });
+}
+
+
+const refreshToken = (config, callback, logout) => {
+	return new Promise((resolve, reject) => {
+		refresh(config.headers["x-auth-token"]) // Endpoint to request new token
+			.then((res) => {
+                config.headers["x-auth-token"] = callback(res.data);
+                Axios
+				  .request(config) // Repeat the initial request
+					.then((result) => {
+						return resolve(result);
+					})
+					.catch((err) => {
+						console.log(err);
+						return reject(err);
+					});
+			})
+			.catch((err) => {
+                console.log(err);
+                logout();
+			});
+	});
+};
+
+
+
 
 export const sendMail = (data) => {
-    return Axios.post("http://localhost:4000/mails/send", data);
+    return Axios.post(API_URL + "mails/send", data);
 }
 
 export const mailsList = (token) => {
-    return Axios.post("http://localhost:4000/mails/", null,{
+    return Axios.post(API_URL + "mails/", null,{
         headers: {
         "x-auth-token" : token
       }
@@ -33,7 +64,7 @@ export const mailsList = (token) => {
 }
 
 export const mailById = (mailId, token) => {
-    return Axios.post("http://localhost:4000/mails/" + mailId, null,{
+    return Axios.post(API_URL + "mails/" + mailId, null,{
         headers: {
         "x-auth-token" : token
       }
@@ -41,15 +72,15 @@ export const mailById = (mailId, token) => {
 }
 
 export const register = (data) => {
-    return Axios.post("http://localhost:4000/users/register", data);
+    return Axios.post(API_URL + "users/register", data);
 }
 
 export const login = (data) => {
-    return Axios.post("http://localhost:4000/users/login", data);
+    return Axios.post(API_URL + "users/login", data);
 }
 
 export const refresh = (token) => {
-    return Axios.post("http://localhost:4000/users/refresh", null,{
+    return Axios.post(API_URL + "users/refresh", null,{
         headers: {
         "x-auth-token" : token
       }

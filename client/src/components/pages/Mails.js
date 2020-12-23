@@ -23,7 +23,6 @@ const Mails = ({history}) => {
         user && mailsList(user.token).then(
             (res) => {
                 setState({ mails: res.data })
-                Toast("SUCCESS", "Mails loaded successfully");
             },
             error => {
                 console.log(error);

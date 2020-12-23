@@ -3,6 +3,7 @@ import { Button, Form } from 'semantic-ui-react';
 import { AuthContext } from '../../context/auth';
 import {useForm} from '../../utils/hooks';
 import { register } from '../../services/api';
+import { Toast } from '../../utils/toast';
 
 const Register = ({history}) => {
     const context = useContext(AuthContext)
@@ -26,6 +27,7 @@ const Register = ({history}) => {
             },
             error => {
               console.log(error)
+              Toast("ERROR", "Error while registring");
             }
         )
     }

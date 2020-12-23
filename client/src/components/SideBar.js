@@ -3,9 +3,9 @@ import { Grid, Icon, Menu, Segment, Sidebar, Item, Image } from 'semantic-ui-rea
 import { Link, Route, Router } from 'react-router-dom';
 import { AuthContext } from '../context/auth';
 
-const SideBar = ({children}) => {
+const SideBar = ({visible, children}) => {
     const {user} = useContext(AuthContext);
-    const [visible, setVisible] = useState(true);
+
     return (
         <Grid>
       <Grid.Row stretched>
@@ -13,19 +13,16 @@ const SideBar = ({children}) => {
         <Sidebar.Pushable as={Segment}>
           <Sidebar
             as={Menu}
-            animation='push'
+            animation="overlay"
             icon='labeled'
             vertical
             visible={visible}
             width='wide'
           >
             <Item>
-              <Item.Image size='tiny' src='https://react.semantic-ui.com/images/wireframe/image.png' />
-
-              <Item.Content>
-                <Item.Header as='a'>Header</Item.Header>
-                <Item.Meta>Description</Item.Meta>
-                <Item.Extra>Additional Details</Item.Extra>
+              <Item.Image circular size='tiny' src='https://scontent.ftun3-1.fna.fbcdn.net/v/t1.0-9/120305100_1428776037317293_169039830729195269_n.jpg?_nc_cat=111&ccb=2&_nc_sid=09cbfe&_nc_ohc=6jUoZ462dlEAX-MjGdC&_nc_ht=scontent.ftun3-1.fna&oh=83df99641349929c0684c6dbb50e2c06&oe=60097FAD' />
+              <Item.Content verticalAlign='middle'>
+                <Item.Header as='a'>{user.username}</Item.Header>
               </Item.Content>
             </Item>
             <Menu.Item as={Link} to="/">
@@ -41,7 +38,7 @@ const SideBar = ({children}) => {
               Accounts
             </Menu.Item>
           </Sidebar>
-            <Sidebar.Pusher>
+            <Sidebar.Pusher dimmed={visible}>
               <Segment basic>
                 {children}
               </Segment>
