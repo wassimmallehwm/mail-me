@@ -6,7 +6,6 @@ import { EditorState, convertToRaw } from 'draft-js';
 import { sendMail } from '../../services/api';
 import draftToHtml from 'draftjs-to-html';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import '../css/Home.css';
 import { Toast } from '../../utils/toast';
 
 

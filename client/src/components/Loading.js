@@ -4,7 +4,7 @@ import { Dimmer, Loader, Segment } from 'semantic-ui-react'
 const Loading = () => {
     return (
         <Segment>
-            <Dimmer active inverted>
+            <Dimmer style={{height: '100vh', border: 'none'}} active inverted>
                 <Loader inline='centered' size='large' inverted>Loading</Loader>
             </Dimmer>
         </Segment>

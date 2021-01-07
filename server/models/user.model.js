@@ -28,6 +28,22 @@ const UserSchema = new mongoose.Schema({
             },
             createdAt: Date
         }
+    ],
+    accounts: [
+        {
+            label: {
+                type: String,
+                unique: true
+            },
+            email: {
+                type: String,
+                unique: true
+            },
+            createdAt: {
+                type: Date,
+                default: new Date()
+            }
+        }
     ]
 }, {
     timestamps: true

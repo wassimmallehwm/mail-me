@@ -1,14 +1,12 @@
-import React, {useEffect, useContext, useState} from 'react';
-import { useParams } from 'react-router-dom';
+import React, {useContext, useState} from 'react';
 import { AuthContext } from '../../context/auth';
-import { mailById } from '../../services/api';
 import Loading from '../Loading';
 import { Toast } from '../../utils/toast';
 
-const MailContent = () => {
+const MailContent = (props) => {
     const { user } = useContext(AuthContext);
     const [state, setState] = useState({
-        mail : null
+        mail : props.location.state
     })
 
     const createMarkup = (body) => {
@@ -16,20 +14,6 @@ const MailContent = () => {
     }
 
     const {mail} = state;
-
-    const {mailId} = useParams();
-
-    useEffect(() => {
-        user && mailById(mailId, user.token).then(
-          (res) => {
-            setState({mail: res.data});
-          },
-          error => {
-            console.log(error)
-            Toast("ERROR", "Error loading mail content");
-          }
-        )
-      }, []);
 
     return (
         <div>

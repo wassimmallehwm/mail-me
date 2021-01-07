@@ -34,6 +34,7 @@ module.exports.register = async (req, res) => {
         const token = generateToken(result._id);
         result.password = undefined;
         result.mails = undefined;
+        result.accounts = undefined;
         res.status(201).json({
             ...result._doc,
             id: result._id,
@@ -63,6 +64,7 @@ module.exports.login = async (req, res) => {
         const token = generateToken(user._id);
         user.password = undefined;
         user.mails = undefined;
+        user.accounts = undefined;
         res.status(200).json({
             ...user._doc,
             id: user._id,
@@ -83,6 +85,7 @@ module.exports.refresh = async (req, res) => {
         const token = generateToken(user._id);
         user.password = undefined;
         user.mails = undefined;
+        user.accounts = undefined;
         res.status(200).json({
             ...user._doc,
             id: user._id,

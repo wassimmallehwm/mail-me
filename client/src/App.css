@@ -1,21 +1,11 @@
-.App {
-  text-align: center;
-  width: 60%;
-  height: 100px;
-  margin: 5rem auto;
+#root{
+  height: 100%!important;
 }
-
 .wrapperClassName {
   border: 1px solid gray;
   background-color: rgb(241, 241, 241);
-}
-
-
-.wrapperClassName {
   margin: 2rem auto;
 }
-
-
 .page-title{
   display: block!important;
   text-align: center;
@@ -32,4 +22,75 @@
   background-color: #00b5ad;
 }
 
+.App {
+  text-align: center;
+  width: 60%;
+  height: 100px;
+  margin: 1rem auto;
+}
+
+.editorClassName {
+  min-height: 100px;
+}
+
+.wrapperClassName {
+  border: 1px solid gray;
+  background-color: rgb(241, 241, 241);
+}
+
+.ui.icon.input {
+  margin: 2rem auto;
+}
+
+.ui.wide.left.sidebar {
+  width: 300px !important;
+}
+.ui.segment {
+  border: none !important;
+}
+.ui.segment.pushable {
+  min-height: 85vh;
+}
+.sidebar.large.icon {
+  margin: auto 2.5rem !important;
+}
+
+/* .main-content {
+  width: calc(100% - 400px);
+} */
+
+.main-content {
+  width: 90%;
+  margin: auto;
+}
+
+.close.icon {
+  color: #9f3a38;
+}
+
+.checkmark.icon {
+  color: #2c662d;
+}
+
+tr {
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+  .ui.wide.left.sidebar {
+    width: 200px !important;
+  }
+  .ui.visible.wide.left.sidebar~.pusher {
+    transform: translate3d(0px,0,0) !important;
+  }
+  .ui.visible.left.sidebar~.fixed, .ui.visible.left.sidebar~.pusher {
+    transform: translate3d(0px,0,0) !important;
+  }
+  .sidebar.large.icon {
+    margin: auto .5rem !important;
+  }
+  /* .main-content {
+    width: calc(100% - 300px);
+  } */
+}
 

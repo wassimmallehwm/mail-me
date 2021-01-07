@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 4000;
 require('dotenv').config();
 const useRouter = require('./routers/user.routes');
 const mailRouter = require('./routers/mail.routes');
+const accountsRouter = require('./routers/accounts.routes');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -26,6 +27,7 @@ connection.once('open', () => {
 
 app.use('/users', useRouter);
 app.use('/mails', mailRouter);
+app.use('/accounts', accountsRouter);
 
 app.listen(PORT, () => {
     console.log('Listening on port ' + PORT);

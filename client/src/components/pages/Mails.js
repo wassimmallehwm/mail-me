@@ -31,8 +31,8 @@ const Mails = ({history}) => {
         )
     }, []);
 
-    const openMail = (mailId) => {
-        history.push('/mails/' + mailId);
+    const openMail = (data) => {
+        history.push('/mails/content', data);
     }
 
 
@@ -52,7 +52,7 @@ const Mails = ({history}) => {
                     <Table.Body>
                         {
                             mails.map((mail, i) => (
-                                <Table.Row key={i} onClick={() => openMail(mail._id)}>
+                                <Table.Row key={i} onClick={() => openMail(mail)}>
                                     <Table.Cell>{mail.to}</Table.Cell>
                                     <Table.Cell> {formatDate(mail.createdAt)} </Table.Cell>
                                     <Table.Cell> {mail.read ? (<Icon name='checkmark' />) : (<Icon name='close' />)} </Table.Cell>

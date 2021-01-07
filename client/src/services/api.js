@@ -25,7 +25,6 @@ export const interceptToken = (callback, logout) => {
     });
 }
 
-
 const refreshToken = (config, callback, logout) => {
 	return new Promise((resolve, reject) => {
 		refresh(config.headers["x-auth-token"]) // Endpoint to request new token
@@ -48,7 +47,30 @@ const refreshToken = (config, callback, logout) => {
 	});
 };
 
+export const createOrUpdateAccount = (token, mode, data) => {
+  const URL = mode == "add" ? API_URL + "accounts/create" : API_URL + "accounts/update";
+  return Axios.post(URL, data,{
+      headers: {
+      "x-auth-token" : token
+    }
+  });
+}
 
+export const accountsList = (token) => {
+    return Axios.post(API_URL + "accounts/", null,{
+        headers: {
+        "x-auth-token" : token
+      }
+    });
+}
+
+export const deleteUserAccount = (token, data) => {
+    return Axios.post(API_URL + "accounts/remove", data,{
+        headers: {
+        "x-auth-token" : token
+      }
+    });
+}
 
 
 export const sendMail = (data) => {
