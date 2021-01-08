@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
     username: {
         type: String
     },
+    imagePath : {
+        type: String,
+        default: 'user.png'
+    },
     mails: [
         {
             body: String,

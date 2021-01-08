@@ -3,6 +3,7 @@ import { Button, Table, Grid, Modal, Form } from 'semantic-ui-react'
 import { AuthContext } from '../../context/auth'
 import { createOrUpdateAccount, accountsList, deleteUserAccount } from '../../services/api'
 import { Toast } from '../../utils/toast';
+import Loading from '../Loading';
 
 const Accounts = () => {
     const { user } = useContext(AuthContext)
@@ -29,7 +30,7 @@ const Accounts = () => {
             },
             error => {
                 console.log(error);
-                Toast("ERROR", "Error loading mails");
+                Toast("ERROR", "Error loading accounts");
             }
         )
     }, []);
@@ -164,30 +165,38 @@ const Accounts = () => {
 
     const dataTable = (
         <Grid.Row>
-            <Table selectable>
-                <Table.Header>
-                    <Table.Row>
-                        <Table.HeaderCell>Label</Table.HeaderCell>
-                        <Table.HeaderCell>E-Mail</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-
-                <Table.Body>
-                    {
-                        accounts && accounts.map((data, i) => (
-                            <Table.Row key={data._id}>
-                                <Table.Cell>{data.label}</Table.Cell>
-                                <Table.Cell> {data.email} </Table.Cell>
-                                <Table.Cell>
-                                    <Button onClick={() => openEditAccountModal(data)} primary icon='edit'/> 
-                                    <Button onClick={() => openDeleteModal(data._id)} negative icon='trash'/> 
-                                </Table.Cell>
+            {
+                accounts && accounts.length > 0 ? (
+                    <Table selectable>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>Label</Table.HeaderCell>
+                                <Table.HeaderCell>E-Mail</Table.HeaderCell>
+                                <Table.HeaderCell>Actions</Table.HeaderCell>
                             </Table.Row>
-                        ))
-                    }
-                </Table.Body>
-            </Table>
+                        </Table.Header>
+
+                        <Table.Body>
+                            {
+                                accounts.map((data, i) => (
+                                    <Table.Row key={data._id}>
+                                        <Table.Cell>{data.label}</Table.Cell>
+                                        <Table.Cell> {data.email} </Table.Cell>
+                                        <Table.Cell>
+                                            <Button onClick={() => openEditAccountModal(data)} primary icon='edit'/> 
+                                            <Button onClick={() => openDeleteModal(data._id)} negative icon='trash'/> 
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))
+                            }
+                        </Table.Body>
+                    </Table>
+                ) : 
+                (
+                    <h3>Create an account</h3>
+                )
+            }
+            
         </Grid.Row>
     )
 
@@ -195,7 +204,7 @@ const Accounts = () => {
         <Grid columns={1}>
             {addAccountModal}
             {deleteAccountModal}
-            {dataTable}
+            {accounts ? dataTable : (<Loading/>)}
         </Grid>
     )
 }

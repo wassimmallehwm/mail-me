@@ -10,8 +10,10 @@ const Navbar = ({toggleSidebar}) => {
     const {user, logout, login} = useContext(AuthContext);
 
   const refreshTokenCallback = (data) => {
-    localStorage.setItem('userData', JSON.stringify(data))
-    login(data)
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    userData.token = data.token;
+    localStorage.setItem('userData', JSON.stringify(userData))
+    login(userData)
     return data.token;
   }
 

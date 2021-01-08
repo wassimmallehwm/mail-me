@@ -72,7 +72,6 @@ export const deleteUserAccount = (token, data) => {
     });
 }
 
-
 export const sendMail = (data) => {
     return Axios.post(API_URL + "mails/send", data);
 }
@@ -87,6 +86,14 @@ export const mailsList = (token) => {
 
 export const mailById = (mailId, token) => {
     return Axios.post(API_URL + "mails/" + mailId, null,{
+        headers: {
+        "x-auth-token" : token
+      }
+    });
+}
+
+export const uploadUserImage = (token, data) => {
+    return Axios.post(API_URL + "users/upload", data,{
         headers: {
         "x-auth-token" : token
       }

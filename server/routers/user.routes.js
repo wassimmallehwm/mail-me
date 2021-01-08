@@ -1,5 +1,5 @@
 const express = require('express');
-const { findAll, findOne, register, login, update, verifyToken, current, refresh } = require('../controllers/user.controller');
+const { findAll, findOne, register, login, update, verifyToken, current, refresh, uploadImage } = require('../controllers/user.controller');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
@@ -8,6 +8,8 @@ router.post('/register', register);
 router.post('/login', login);
 
 router.post('/refresh', auth, refresh);
+
+router.post('/upload', auth, uploadImage);
 
 router.post('/verifyToken', verifyToken);
 

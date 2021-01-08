@@ -1,12 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { Grid, Header } from 'semantic-ui-react';
+import { Grid, Header, Form, Select } from 'semantic-ui-react';
 import { AuthContext } from '../../context/auth';
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertToRaw } from 'draft-js';
-import { sendMail } from '../../services/api';
+import { accountsList, sendMail } from '../../services/api';
 import draftToHtml from 'draftjs-to-html';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Toast } from '../../utils/toast';
+import Loading from '../Loading';
 
 
 const Home = () => {
@@ -16,10 +17,27 @@ const Home = () => {
     sender: '',
     receiver: '',
     subject: '',
+    accounts: null,
     loading: false
   })
 
-  const { receiver, sender, subject, mailBody } = state;
+  const { receiver, sender, subject, accounts, mailBody } = state;
+
+  useEffect(() => {
+    user && accountsList(user.token).then(
+      (res) => {
+        let values = [];
+        res.data.forEach(acc => {
+          values.push({key: acc._id, value: acc.email, text: acc.label});
+        })
+        setState({ ...state, accounts: values })
+      },
+      error => {
+        console.log(error);
+        Toast("ERROR", "Error loading accounts");
+      }
+    )
+  }, []);
 
 
   const onEditorStateChange = (mailBody) => {
@@ -28,6 +46,10 @@ const Home = () => {
       mailBody,
     });
   };
+
+  const handleAccountChange = (event, data) => {
+    setState({ ...state, sender: data.value })
+  }
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value })
@@ -46,7 +68,7 @@ const Home = () => {
     sendMail(data).then(
       () => {
         console.log("Success")
-        setState({ ...state, loading: false })
+        setState({ ...state, loading: false , sender: '', receiver: '', mailBody: ''})
         Toast("SUCCESS", "Email sent successfully");
       },
       error => {
@@ -58,22 +80,23 @@ const Home = () => {
   }
 
 
-
   const mailForm = () => (
     <>
       <Header as='h3'>Home Page</Header>
-      <form
+      <Form
         className={state.loading ? 'loading ui form ' : 'ui form main-form'}
         onSubmit={onSubmit}
       >
-        <div className="ui left icon input fluid">
-          <i aria-hidden="true" className="at icon"></i>
-          <input type="email" placeholder="Email"
-            name="sender"
-            value={sender}
-            onChange={handleChange}
-          />
-        </div>
+        <Form.Field className="ui left icon input fluid"
+          control={Select}
+          options={accounts}
+          closeOnChange
+          placeholder='Account'
+          search
+          searchInput={{ id: 'form-select-account' }}
+          defaultValue={sender}
+          onChange={handleAccountChange}
+        />
         <div className="ui left icon input fluid">
           <i aria-hidden="true" className="at icon"></i>
           <input type="email" placeholder="To"
@@ -98,13 +121,15 @@ const Home = () => {
           onEditorStateChange={onEditorStateChange}
         />
         <button type="submit" className="ui primary right floated button">Send</button>
-      </form>
+      </Form>
     </>
   );
 
   return (
     user ?
-      mailForm()
+      accounts && accounts.length > 0 ?
+        mailForm()
+        : (<Loading />)
       : (
         <Grid columns={3}>
           <Grid.Column>

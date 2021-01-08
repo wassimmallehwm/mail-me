@@ -3,9 +3,10 @@ import { Grid, Icon, Menu, Segment, Sidebar, Item, Image } from 'semantic-ui-rea
 import { Link, Route, Router } from 'react-router-dom';
 import { AuthContext } from '../context/auth';
 
-const SideBar = ({visible, closeSidebar, children}) => {
+const SideBar = ({history, visible, closeSidebar, children}) => {
     const {user} = useContext(AuthContext);
 
+    const imgUrl = "http://localhost:4000/public/images/";
     return (
         <Grid>
       <Grid.Row style={{padding: 0}} stretched>
@@ -19,8 +20,8 @@ const SideBar = ({visible, closeSidebar, children}) => {
             visible={visible}
             width='wide'
           >
-            <Item>
-              <Item.Image circular size='tiny' src='https://scontent.ftun3-1.fna.fbcdn.net/v/t1.0-9/120305100_1428776037317293_169039830729195269_n.jpg?_nc_cat=111&ccb=2&_nc_sid=09cbfe&_nc_ohc=6jUoZ462dlEAX-MjGdC&_nc_ht=scontent.ftun3-1.fna&oh=83df99641349929c0684c6dbb50e2c06&oe=60097FAD' />
+            <Item as={Link} to="/profile">
+              <Item.Image circular size='tiny' src={imgUrl + user.imagePath}/>
               <Item.Content verticalAlign='middle'>
                 <Item.Header as='a'>{user.username}</Item.Header>
               </Item.Content>

@@ -18,6 +18,7 @@ const Register = lazy(() => import('./components/pages/Register'));
 const Layout = lazy(() => import('./components/Layout'));
 const Mails = lazy(() => import('./components/pages/Mails'));
 const MailContent = lazy(() => import('./components/pages/MailContent'));
+const Profile = lazy(() => import('./components/pages/Profile'));
 
 toast.configure()
 const App = () => {
@@ -47,6 +48,7 @@ const App = () => {
               <ProtectedRoute exact path="/mails" component={Mails} />
               <ProtectedRoute exact path="/accounts" component={Accounts} />
               <ProtectedRoute exact path="/mails/content" component={MailContent} />
+              <ProtectedRoute exact path="/profile" component={Profile} />
               <GuestRoute exact path="/register" component={Register} />
               <GuestRoute exact path="/login" component={Login} />
             </Switch>
