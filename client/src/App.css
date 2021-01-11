@@ -58,7 +58,17 @@
 /* .main-content {
   width: calc(100% - 400px);
 } */
+.ui.visible.overlay.sidebar {
+  transition: transform 1s ease!important;
+}
+.ui.labeled.icon.menu .item {
+  width: 100%!important;
+}
 
+.menu-tab{
+  margin-bottom: -50px!important;
+  margin-top: 30px!important;
+}
 .main-content {
   width: 90%;
   margin: auto;
@@ -94,3 +104,12 @@ tr {
   } */
 }
 
+
+@media only screen and (max-width: 767px) {
+
+
+  .ui.vertical.menu .item{
+    display: inline-flex!important;
+    width: 33.33%!important;
+  }
+}

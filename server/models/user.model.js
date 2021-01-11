@@ -12,6 +12,14 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     username: {
+        type: String,
+        default: 'user.png'
+    },
+    firstname: {
+        type: String,
+        default: 'user.png'
+    },
+    lastname: {
         type: String
     },
     imagePath : {

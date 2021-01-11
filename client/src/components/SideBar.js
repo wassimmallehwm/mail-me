@@ -20,12 +20,13 @@ const SideBar = ({history, visible, closeSidebar, children}) => {
             visible={visible}
             width='wide'
           >
-            <Item as={Link} to="/profile">
-              <Item.Image circular size='tiny' src={imgUrl + user.imagePath}/>
+            
+            <Menu.Item as={Link} to="/profile">
+              <Item.Image centered circular size='tiny' src={imgUrl + user.imagePath}/>
               <Item.Content verticalAlign='middle'>
                 <Item.Header as='a'>{user.username}</Item.Header>
               </Item.Content>
-            </Item>
+            </Menu.Item>
             <Menu.Item as={Link} to="/">
               <Icon name='home' />
               Home

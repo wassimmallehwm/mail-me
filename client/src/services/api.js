@@ -100,6 +100,22 @@ export const uploadUserImage = (token, data) => {
     });
 }
 
+export const updateUser = (token, data) => {
+    return Axios.post(API_URL + "users/update", data,{
+        headers: {
+        "x-auth-token" : token
+      }
+    });
+}
+
+export const changeUserPassword = (token, data) => {
+    return Axios.post(API_URL + "users/change-password", data,{
+        headers: {
+        "x-auth-token" : token
+      }
+    });
+}
+
 export const register = (data) => {
     return Axios.post(API_URL + "users/register", data);
 }

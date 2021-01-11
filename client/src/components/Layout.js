@@ -6,6 +6,7 @@ const SideBar = lazy(() => import('./SideBar'));
 
 const Layout = ({sidebarVisible, closeSidebar, children}) => {
     const {user} = useContext(AuthContext);
+
     return (
         <>
         {user ? (

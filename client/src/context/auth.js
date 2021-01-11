@@ -8,12 +8,12 @@ const initState = {
 
 if(localStorage.getItem('userData')){
     const userData = JSON.parse(localStorage.getItem('userData'));
-    const decodedToken = jwtDecode(userData.token);
-    if(decodedToken.exp * 1000 < Date.now()){
-        localStorage.removeItem('userData')
-    } else {
+    // const decodedToken = jwtDecode(userData.token);
+    // if(decodedToken.exp * 1000 < Date.now()){
+    //     localStorage.removeItem('userData')
+    // } else {
         initState.user = userData;
-    }
+    //}
 }
 
 const AuthContext = createContext({

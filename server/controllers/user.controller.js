@@ -8,7 +8,30 @@ function generateToken(id) {
     return token = jwt.sign({
         _id: id
     }, process.env.JWT_SECRET,
-        { expiresIn: '1h' })
+        { expiresIn: '1hr' })
+}
+
+function userResponse(data, token) {
+    const {
+        _id,
+        username,
+        firstname,
+        lastname,
+        email,
+        createdAt,
+        imagePath
+    } = data;
+    const userResp = {
+        _id,
+        username,
+        firstname,
+        lastname,
+        email,
+        createdAt,
+        imagePath,
+        token
+    }
+    return userResp;
 }
 
 module.exports.register = async (req, res) => {
@@ -34,14 +57,8 @@ module.exports.register = async (req, res) => {
 
         const result = await user.save();
         const token = generateToken(result._id);
-        result.password = undefined;
-        result.mails = undefined;
-        result.accounts = undefined;
-        res.status(201).json({
-            ...result._doc,
-            id: result._id,
-            token
-        });
+        const response = userResponse(result, token)
+        res.status(201).json(response);
     } catch (e) {
         console.log('ERROR', e);
         res.status(500).json({ 'error': e })
@@ -64,14 +81,8 @@ module.exports.login = async (req, res) => {
             return res.status(404).json({ msg: "Invalid Credentials !" })
 
         const token = generateToken(user._id);
-        user.password = undefined;
-        user.mails = undefined;
-        user.accounts = undefined;
-        res.status(200).json({
-            ...user._doc,
-            id: user._id,
-            token
-        });
+        const response = userResponse(user, token)
+        res.status(200).json(response);
     } catch (e) {
         console.log('ERROR', e);
         res.status(500).json({ 'error': e })
@@ -85,9 +96,6 @@ module.exports.refresh = async (req, res) => {
         });
         const user = await User.findById(verifUser._id);
         const token = generateToken(user._id);
-        user.password = undefined;
-        user.mails = undefined;
-        user.accounts = undefined;
         res.status(200).json({ token });
     } catch (e) {
         console.log('ERROR', e);
@@ -115,6 +123,48 @@ module.exports.uploadImage = async (req, res) => {
 }
 
 
+module.exports.update = async (req, res) => {
+    try {
+        let user = await User.findOne({ _id: req.user });
+        if (!user) {
+            res.status(404).send('User no found !')
+        } else {
+            user = await User.findOneAndUpdate({ _id: req.user }, req.body, { new: true });
+            user.password = undefined;
+            user.mails = undefined;
+            user.accounts = undefined;
+            res.status(200).json(user);
+        }
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(400).send('Error adding a User')
+    }
+}
+
+module.exports.changePassword = async (req, res) => {
+    try {
+        const {password, newPassword, newPasswordCheck} = req.body;
+        let user = await User.findOne({ _id: req.user });
+        
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch)
+            return res.status(404).json({ msg: "Invalid Password !" })
+        
+        if (newPassword != newPasswordCheck)
+            return res.status(400).json({ msg: "Password and Password Check do not match!" })
+        
+        const salt = await bcrypt.genSalt()
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        user.password = hashedPassword;
+        await user.save();
+        res.status(200).json(true);
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(500).json({ 'error': e })
+    }
+}
+
+
 
 module.exports.findAll = async (req, res) => {
     try {
@@ -131,22 +181,6 @@ module.exports.findOne = async (req, res) => {
         res.json(User);
     } catch (e) {
         console.log('ERROR', e);
-    }
-}
-
-
-module.exports.update = async (req, res) => {
-    try {
-        const User = await User.findById(req.params.id);
-        if (!User) {
-            res.status(404).send('User no found !')
-        } else {
-            result = await User.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
-            res.status(201).json(result);
-        }
-    } catch (e) {
-        console.log('ERROR', e);
-        res.status(400).send('Error adding a User')
     }
 }
 

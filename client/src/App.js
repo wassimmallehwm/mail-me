@@ -5,7 +5,6 @@ import 'semantic-ui-css/semantic.min.css';
 import { AuthProvider } from './context/auth'
 import GuestRoute from './utils/GuestRoute';
 import ProtectedRoute from './utils/ProtectedRoute';
-import { createBrowserHistory } from 'history';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loading from './components/Loading';
@@ -22,7 +21,6 @@ const Profile = lazy(() => import('./components/pages/Profile'));
 
 toast.configure()
 const App = () => {
-
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const toggleSidebar = () => {
@@ -39,7 +37,7 @@ const App = () => {
   return (
     <AuthProvider>
       <Router >
-        <Suspense fallback={Loading}>
+        <Suspense fallback={(<Loading/>)}>
           <Navbar toggleSidebar={toggleSidebar} />
           <ToastContainer />
           <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar}>
