@@ -12,19 +12,21 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     username: {
-        type: String,
-        default: 'user.png'
+        type: String
     },
     firstname: {
-        type: String,
-        default: 'user.png'
+        type: String
     },
     lastname: {
         type: String
     },
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    },
     imagePath : {
         type: String,
-        default: 'user.png'
+        default: 'user_default'
     },
     mails: [
         {
@@ -56,7 +58,11 @@ const UserSchema = new mongoose.Schema({
                 default: new Date()
             }
         }
-    ]
+    ],
+    enabled : {
+        type: Boolean,
+        default: true
+    }
 }, {
     timestamps: true
 });

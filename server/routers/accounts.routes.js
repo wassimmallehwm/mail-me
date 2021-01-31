@@ -1,6 +1,6 @@
 const express = require('express');
 const { create, findAll, update, remove } = require('../controllers/accounts.controller');
-const auth = require('../middleware/auth');
+const {auth} = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/create', auth, create);

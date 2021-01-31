@@ -7,9 +7,13 @@ const morgan = require('morgan');
 var path = require('path');
 const PORT = process.env.PORT || 4000;
 require('dotenv').config();
+
+const dbSeeder = require('./utils/databaseSeeder');
 const useRouter = require('./routers/user.routes');
 const mailRouter = require('./routers/mail.routes');
 const accountsRouter = require('./routers/accounts.routes');
+const menusRouter = require('./routers/menu.routes');
+const rolesRouter = require('./routers/roles.routes');
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.static('resources'));
@@ -23,13 +27,16 @@ mongoose.connect(process.env.MONGODB_URL, {
     useCreateIndex: true
 });
 const connection = mongoose.connection;
-connection.once('open', () => {
+connection.once('open', async () => {
     console.log('Connected to DataBase');
+    await dbSeeder();
 })
 
 app.use('/users', useRouter);
 app.use('/mails', mailRouter);
 app.use('/accounts', accountsRouter);
+app.use('/menus', menusRouter);
+app.use('/roles', rolesRouter);
 
 app.listen(PORT, () => {
     console.log('Listening on port ' + PORT);

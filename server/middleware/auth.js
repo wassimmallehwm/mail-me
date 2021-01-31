@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user.model')
 
-const auth = (req, res, next) => {
+module.exports.auth = (req, res, next) => {
     try{
         const token = req.header("x-auth-token");
         if(!token){
@@ -24,7 +25,18 @@ const auth = (req, res, next) => {
         }
     }
 }
+module.exports.admin = async (req, res, next) => {
+    try{
+        const user = await User.findById(req.user)
+        .populate('role')
+        .exec();
+        if(user.role.label != 'ADMIN'){
+            return res.status(401).json({msg : "Not Authorized (Admin Route) !"})
+        }
+        next();
+    } catch(e){
+        res.status(500).json({error: e});
+    }
+}
 
-
-module.exports = auth;
 

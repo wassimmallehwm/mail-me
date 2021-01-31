@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Role = require('../models/role.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
@@ -18,6 +19,7 @@ function userResponse(data, token) {
         firstname,
         lastname,
         email,
+        role,
         createdAt,
         imagePath
     } = data;
@@ -27,6 +29,7 @@ function userResponse(data, token) {
         firstname,
         lastname,
         email,
+        role,
         createdAt,
         imagePath,
         token
@@ -53,6 +56,9 @@ module.exports.register = async (req, res) => {
         user.email = email;
         user.password = hashedPassword;
         user.username = username;
+        user.accounts = [{label: "Default", email}];
+        const role = await Role.findOne({label: 'GUEST'});
+        user.role = role._id;
 
 
         const result = await user.save();
