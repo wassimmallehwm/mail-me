@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { Icon, Menu } from 'semantic-ui-react'
 import { AuthContext } from '../context/auth'
 import { interceptToken } from '../services/api'
 
-const Navbar = ({toggleSidebar}) => {
+const Navbar = ({history, toggleSidebar}) => {
     const handleItemClick = (e, { name }) => setaAtiveItem(name)
 
     const {user, logout, login} = useContext(AuthContext);
@@ -15,6 +15,11 @@ const Navbar = ({toggleSidebar}) => {
     localStorage.setItem('userData', JSON.stringify(userData))
     login(userData)
     return data.token;
+  }
+
+  const logoutUser = () => {
+    history.push('/')
+    logout();
   }
 
   useEffect(() => {
@@ -33,7 +38,7 @@ const Navbar = ({toggleSidebar}) => {
           <Menu.Menu position='right'>
           <Menu.Item
             name='logout'
-            onClick={logout}
+            onClick={logoutUser}
           />
           </Menu.Menu>
         </Menu>
@@ -67,4 +72,4 @@ const Navbar = ({toggleSidebar}) => {
     return navbar
 }
 
-export default Navbar
+export default withRouter(Navbar)

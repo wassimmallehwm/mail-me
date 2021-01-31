@@ -10,7 +10,7 @@ const Layout = ({sidebarVisible, closeSidebar, children}) => {
     return (
         <>
         {user ? (
-            <Suspense fallback={Loading}>
+            <Suspense fallback={<Loading/>}>
                 <SideBar closeSidebar={closeSidebar} visible={sidebarVisible}>
                 <div className="main-content">
                     {children}

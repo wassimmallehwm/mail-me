@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { AuthContext } from '../../context/auth';
 import Loading from '../Loading';
 import { Toast } from '../../utils/toast';
+import Compress from 'compress.js';
 import { Button, Image, Grid, Form, Modal, Loader, Segment, Dimmer, Tab, Header } from 'semantic-ui-react';
 import { uploadUserImage, updateUser } from '../../services/api';
 import UserDetails from '../UserDetails';
@@ -18,12 +19,15 @@ const Profile = () => {
         selectedFileType: null,
         previewImage: null,
         imagePreviewModalOpen: false,
+        profileImageModalOpen: false,
         tabIndex: 0,
         userDetails: null,
         active: false
     })
 
-    const {active, modalLoading, selectedFile, selectedFileName, selectedFileType, previewImage, imagePreviewModalOpen, tabIndex, userDetails } = state;
+    const compress = new Compress()
+
+    const {active, modalLoading, selectedFile, selectedFileName, selectedFileType, previewImage, imagePreviewModalOpen, profileImageModalOpen, tabIndex, userDetails } = state;
 
     useEffect(() => {
         const {username, firstname, lastname, email} = user;
@@ -39,7 +43,7 @@ const Profile = () => {
 
     const fileRef = useRef();
 
-    const imgUrl = "http://localhost:4000/public/images/";
+    const imgUrl = "http://localhost:4000/public/images/users/";
 
     const onImageClick = () => {
         fileRef.current.click();
@@ -74,15 +78,40 @@ const Profile = () => {
         )
     }
 
-    const uploadImage = () => {
+    const resizeImageFn = async (file) => {
+
+        const resizedImage = await compress.compress([file], {
+          size: 2,
+          quality: 1,
+          maxWidth: 400,
+          maxHeight: 400,
+          resize: true 
+        })
+        const img = resizedImage[0];
+        const base64str = img.data
+        const imgExt = img.ext
+        const resizedFiile = Compress.convertBase64ToFile(base64str, imgExt)
+        return resizedFiile;
+      }
+
+    const uploadImage = async () => {
         setState({ ...state, modalLoading: true })
+        const compressedFile = await resizeImageFn(selectedFile);
         const data = new FormData()
-        data.append('image', selectedFile)
+        data.append('image', compressedFile)
         uploadUserImage(user.token, data).then(
             res => {
                 user.imagePath = res.data.filename
                 login(user);
-                setState({ ...state, modalLoading: false, imagePreviewModalOpen: false, previewImage: '' })
+                setState({
+                    ...state,
+                    modalLoading: false,
+                    imagePreviewModalOpen: false,
+                    previewImage: '',
+                    selectedFile: null,
+                    selectedFileName: null,
+                    selectedFileType: null
+                })
             },
             error => {
                 Toast("ERROR", "Error updating user image");
@@ -92,7 +121,15 @@ const Profile = () => {
     }
 
     const closeImagePreviewModal = () => {
-        setState({ ...state, imagePreviewModalOpen: false, modalLoading: false })
+        setState({
+            ...state,
+            modalLoading: false,
+            imagePreviewModalOpen: false,
+            previewImage: '',
+            selectedFile: null,
+            selectedFileName: null,
+            selectedFileType: null
+        })
     }
 
     const imagePreviewModal = (
@@ -106,7 +143,7 @@ const Profile = () => {
             onClose={closeImagePreviewModal}
         >
             <Modal.Content>
-                <Dimmer.Dimmable as={Segment} dimmed={modalLoading}>
+                <Dimmer.Dimmable style={{textAlign: "center"}} as={Segment} dimmed={modalLoading}>
                     <Dimmer inverted active={modalLoading} >
                         <Loader active />
                     </Dimmer>
@@ -165,9 +202,33 @@ const Profile = () => {
         }
     }
 
+    const openImageProfile = () => {
+        setState({...state, profileImageModalOpen: true});
+    }
+
+    const closeImageProfile = () => {
+        setState({...state, profileImageModalOpen: false});
+    }
+
+    const profileImagePreviewModal = (
+        <Modal
+            closeOnEscape={true}
+            closeOnDimmerClick={true}
+            open={profileImageModalOpen}
+            dimmer="blurring"
+            size="small"
+            onOpen={() => setState({ ...state, profileImageModalOpen: true })}
+            onClose={closeImageProfile}
+            id="modal-no-padding"
+        >
+            <Image id="image-no-padding" size="large" centered src={imgUrl + user.imagePath} />
+        </Modal>
+    );
+
     const content = (
         <div>
-          <Button onClick={onImageClick} inverted basic icon="edit"/>
+            <Button onClick={openImageProfile} inverted basic icon="expand arrows alternate"/>
+            <Button onClick={onImageClick} inverted basic icon="edit"/>
         </div>
       )
 
@@ -183,14 +244,15 @@ const Profile = () => {
     return (
         <Grid columns={2} divided stackable>
             {imagePreviewModal}
+            {profileImagePreviewModal}
             <input style={{ display: "none" }} type="file" name="file" ref={fileRef} onChange={fileChnage} />
             <Grid.Row>
                 <Grid.Column width={4}>
                     {/* <Image style={{ cursor: "pointer" }} onClick={onImageClick} size="medium" centered circular src={imgUrl + user.imagePath} /> */}
+                    <div style={{textAlign: 'center'}}>
                     <Dimmer.Dimmable
                         as={Image}
                         circular
-                        inverted
                         dimmed={active}
                         dimmer={{ active, content }}
                         onMouseEnter={handleShow}
@@ -198,6 +260,7 @@ const Profile = () => {
                         size='medium'
                         src={imgUrl + user.imagePath}
                     />
+                    </div>
                 <Tab onTabChange={onTabChange} grid={{ tabWidth: 16 }} menu={{ secondary: true, fluid: true, vertical: true, className: "menu-tab" }} panes={panes} />
                     
                 </Grid.Column>

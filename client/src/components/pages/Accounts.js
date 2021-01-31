@@ -26,7 +26,9 @@ const Accounts = () => {
     useEffect(() => {
         user && accountsList(user.token).then(
             (res) => {
-                setState({...state, accounts: res.data })
+                //setTimeout(() => {
+                    setState({...state, accounts: res.data })
+                //}, 60000)
             },
             error => {
                 console.log(error);

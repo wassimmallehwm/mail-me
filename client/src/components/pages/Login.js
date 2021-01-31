@@ -10,7 +10,7 @@ const Login = ({ history }) => {
     const initState = {
         loading: false,
         email: '',
-        password: ''
+        password: 'password'
     }
     const { onChange, onSubmit, values } = useForm(loginUser, initState)
     const [errors, setErrors] = useState({})
