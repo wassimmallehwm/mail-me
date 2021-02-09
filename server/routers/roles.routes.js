@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post('/findAll', auth, admin, findAll);
 
-router.post('/test', auth, test);
+//router.post('/test', auth, test);
 
 
 module.exports = router;

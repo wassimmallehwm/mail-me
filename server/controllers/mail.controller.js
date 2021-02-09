@@ -6,7 +6,7 @@ module.exports.sendMail = async (req, res) => {
     try{
         var {receiver, sender, senderId, subject, mailBody} = req.body;
         const date = new Date();
-        const url = "https://c41dbc729a44.ngrok.io/mails/read/" + senderId + "/" + date.getTime();
+        const url = "https://wassimmalleh.com/api/mails/read/" + senderId + "/" + date.getTime();
         const html = "<img style='width: 1px; height: 1px; z-index: -9' src='" + url + "'>" + mailBody;
         var mailOptions = {
             to: receiver,

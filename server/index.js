@@ -32,11 +32,11 @@ connection.once('open', async () => {
     await dbSeeder();
 })
 
-app.use('/users', useRouter);
-app.use('/mails', mailRouter);
-app.use('/accounts', accountsRouter);
-app.use('/menus', menusRouter);
-app.use('/roles', rolesRouter);
+app.use('/api/users', useRouter);
+app.use('/api/mails', mailRouter);
+app.use('/api/accounts', accountsRouter);
+app.use('/api/menus', menusRouter);
+app.use('/api/roles', rolesRouter);
 
 app.listen(PORT, () => {
     console.log('Listening on port ' + PORT);

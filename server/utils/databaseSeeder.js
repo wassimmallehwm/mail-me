@@ -1,6 +1,8 @@
 const AppConfig = require('../models/app.config.model');
 const Role = require('../models/role.model');
 const Menu = require('../models/menu.model');
+const User = require('../models/user.model');
+const bcrypt = require('bcryptjs');
 
 const createAppConfig = async () => {
     const appconfig = new AppConfig();
@@ -8,24 +10,24 @@ const createAppConfig = async () => {
     await appconfig.save();
 }
 
-const createRoles = async () => {
-    const admin = new Role();
-    admin.label = 'ADMIN';
-    await admin.save();
-    
-    const guest = new Role();
-    guest.label = 'GUEST';
-    await guest.save();
+const createAdmin = async (role) => {
+    const salt = await bcrypt.genSalt()
+    const hashedPassword = await bcrypt.hash("password", salt);
+    const user = new User();
+    user.email = "admin@admin.com";
+    user.password = hashedPassword;
+    user.username = "admin";
+    user.accounts = [{ label: "Default", email: "admin@admin.com" }];
+    user.role = role._id;
+    await user.save();
 }
 
-const createMenus = async () => {
-    const role = await Role.findOne({label: 'ADMIN'});
-
+const createMenus = async (adminRole, guestRole) => {
     const home = new Menu();
     home.label = 'Home';
     home.url = '/';
     home.symbole = 'home';
-    home.roles = [role._id];
+    home.roles = [adminRole._id, guestRole._id];
     home.isArtificial = false;
     home.hasContent = true;
     await home.save();
@@ -34,7 +36,7 @@ const createMenus = async () => {
     mails.label = 'Mails';
     mails.url = '/mails';
     mails.symbole = 'mail';
-    mails.roles = [role._id];
+    mails.roles = [adminRole._id, guestRole._id];
     mails.isArtificial = false;
     mails.hasContent = true;
     await mails.save();
@@ -43,7 +45,7 @@ const createMenus = async () => {
     accounts.label = 'Accounts';
     accounts.url = '/accounts';
     accounts.symbole = 'users';
-    accounts.roles = [role._id];
+    accounts.roles = [adminRole._id, guestRole._id];
     accounts.isArtificial = false;
     accounts.hasContent = true;
     await accounts.save();
@@ -52,23 +54,36 @@ const createMenus = async () => {
     menus.label = 'Menus';
     menus.url = '/menus';
     menus.symbole = 'menus';
-    menus.roles = [role._id];
+    menus.roles = [adminRole._id];
     menus.isArtificial = false;
     menus.hasContent = true;
     await menus.save();
 }
 
+const createCollections = async () => {
+    const admin = new Role();
+    admin.label = 'ADMIN';
+    const adminRole = await admin.save();
+
+    const guest = new Role();
+    guest.label = 'GUEST';
+    const guestRole = await guest.save();
+
+    await createAdmin(adminRole);
+    await createMenus(adminRole, guestRole);
+}
+
 const dbSeeder = async () => {
     AppConfig.find().then(
         async res => {
-            if( res && res.length > 0){
+            if (res && res.length > 0) {
                 console.log('App already initialized !')
-                return ;
+                return;
             } else {
                 console.log('Initializing App ...')
                 await createAppConfig();
-                await createRoles();
-                await createMenus();
+                await createCollections();
+                console.log('Initializing initialized successfully !')
             }
         },
         error => {

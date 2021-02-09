@@ -1,8 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Grid, Icon, Menu, Segment, Sidebar, Item, Image } from 'semantic-ui-react';
-import { Link, Route, Router } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/auth';
 import { findAllByRole } from '../services/menu.service';
+import config from '../config';
 
 const SideBar = ({ history, visible, closeSidebar, children }) => {
   const { user } = useContext(AuthContext);
@@ -22,7 +23,6 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
   useEffect(() => {
     user && findAllByRole(user.token, { role: user.role }).then(
       res => {
-        console.log(res.data)
         setState({ ...state, menuList: res.data })
       },
       error => {
@@ -31,11 +31,11 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
     )
   }, [])
 
-  const imgUrl = "http://localhost:4000/public/images/users/";
+  const imgUrl = config.publicUrl + "images/users/";
   return (
     <Grid>
-      <Grid.Row style={{ padding: 0 }} stretched>
-        <Grid.Column>
+      <Grid.Row style={{ padding: 0, margin: 0 }} stretched>
+        <Grid.Column style={{ padding: 0, margin: 0 }}>
           <Sidebar.Pushable as={Segment}>
             <Sidebar
               as={Menu}
@@ -56,11 +56,11 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
                 menuList &&
                 menuList.map(menu => (
                   <Menu.Item key={menu._id} as={Link} to={menu.isArtificial ? `/form/${menu._id}` : menu.url}>
-                    {/* {
+                    {
                     menu.symboleType == 'ICON' 
-                    ? (<Icon size="mini" circular name={menu.symbole} />)
+                    ? (<Icon style={{position: 'absolut', left: '1em'}} size="mini" name={menu.symbole} />)
                     : (<Image size="mini" avatar  src={imgUrl + menu.symbole} />)
-                  } */}
+                  }
                     <span>{menu.label}</span>
                   </Menu.Item>
                 ))

@@ -55,7 +55,6 @@ const FormRender = ({ match, history }) => {
             formSubmit(user.token, menu, event.data)
             .then(
                 res => {
-                    console.log(res.data)
                     history.push(menu.redirectMenu.url);
                 },
                 error => {

@@ -1,6 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react'
 import './App.css';
-//import './components/css/formio.css';
 import { BrowserRouter as Router, Route, Switch, useHistory } from 'react-router-dom'
 import 'semantic-ui-css/semantic.min.css';
 import { AuthProvider } from './context/auth'

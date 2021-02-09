@@ -5,8 +5,6 @@ import { Slider } from "react-semantic-ui-range"
 
 const ImageEditor = ({ imgUrl, saveAfterChange }) => {
     const [scale, setScale] = useState(1.2);
-    //const [simulatedEvent, setSimulatedEvent ] = useState(document.createEvent("MouseEvent"));
-
     const settings = {
         start: 1.2,
         min: 1,

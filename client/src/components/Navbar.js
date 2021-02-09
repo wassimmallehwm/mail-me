@@ -19,6 +19,7 @@ const Navbar = ({history, toggleSidebar}) => {
 
   const logoutUser = () => {
     history.push('/')
+    handleItemClick(null, {name: 'home'});
     logout();
   }
 

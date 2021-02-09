@@ -161,3 +161,14 @@ tr {
   padding: 0!important;
   border-radius: 0!important;
 }
+
+.main-grid{
+  margin: 0 -1rem 0 1rem!important;
+}
+
+.ui.labeled.icon.menu .item>.icon:not(.dropdown){
+  display: initial!important;
+  position: absolute!important;
+  left: 1.5em!important;
+  top: 20%!important;
+}

@@ -1,6 +1,7 @@
 import Axios from 'axios';
+import config from '../config';
 
-const API_URL = "http://localhost:4000/roles";
+const API_URL = config.apiUrl + "roles";
 
 
 export const findAll = (token) => {

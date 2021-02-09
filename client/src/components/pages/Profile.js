@@ -3,11 +3,12 @@ import { AuthContext } from '../../context/auth';
 import Loading from '../Loading';
 import { Toast } from '../../utils/toast';
 import Compress from 'compress.js';
-import { Button, Image, Grid, Form, Modal, Loader, Segment, Dimmer, Tab, Header } from 'semantic-ui-react';
+import { Button, Image, Grid, Modal, Loader, Segment, Dimmer, Tab } from 'semantic-ui-react';
 import { uploadUserImage, updateUser } from '../../services/api';
 import UserDetails from '../UserDetails';
 import ChangePassword from '../ChangePassword';
 import ImageEditor from '../ImageEditor';
+import config from '../../config';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext);
@@ -43,7 +44,7 @@ const Profile = () => {
 
     const fileRef = useRef();
 
-    const imgUrl = "http://localhost:4000/public/images/users/";
+    const imgUrl = config.publicUrl + "images/users/";
 
     const onImageClick = () => {
         fileRef.current.click();
@@ -112,6 +113,7 @@ const Profile = () => {
                     selectedFileName: null,
                     selectedFileType: null
                 })
+                Toast("SUCCESS", "User image updated successfully");
             },
             error => {
                 Toast("ERROR", "Error updating user image");

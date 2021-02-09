@@ -46,7 +46,6 @@ const FormCreator = ({history, location}) => {
         setMenuForm(user.token, {menuId, formData})
         .then(
             res => {
-                console.log(res.data)
                 history.push('/menus')
             },
             error => {

@@ -1,6 +1,7 @@
 import Axios from 'axios';
+import config from '../config';
 
-const API_URL = "http://localhost:4000/menus";
+const API_URL = config.apiUrl + "menus";
 
 
 export const createOrUpdate = (token, mode, data) => {

@@ -1,7 +1,7 @@
 import Axios from 'axios';
+import config from '../config';
 
-const API_URL = "http://localhost:4000/"; //"https://limitless-meadow-15715.herokuapp.com/"; //"https://f5cc679aee1c.ngrok.io/";
-
+const API_URL = config.apiUrl; 
 
 export const interceptToken = (callback, logout) => {
   Axios.interceptors.response.use(null, (error) => {

@@ -15,7 +15,7 @@ module.exports.auth = (req, res, next) => {
         next();
     } catch(e){
         if(e instanceof jwt.TokenExpiredError){
-            if(req.originalUrl === '/users/refresh'){
+            if(req.originalUrl === '/api/users/refresh'){
                 next();
             } else {
                 return res.status(401).json({msg : "token_expired"})
@@ -31,7 +31,7 @@ module.exports.admin = async (req, res, next) => {
         .populate('role')
         .exec();
         if(user.role.label != 'ADMIN'){
-            return res.status(401).json({msg : "Not Authorized (Admin Route) !"})
+            return res.status(403).json({msg : "Not Authorized (Admin Route) !"})
         }
         next();
     } catch(e){

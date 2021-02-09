@@ -203,7 +203,7 @@ const Accounts = () => {
     )
 
     return (
-        <Grid columns={1}>
+        <Grid columns={1} className="main-grid">
             {addAccountModal}
             {deleteAccountModal}
             {accounts ? dataTable : (<Loading/>)}

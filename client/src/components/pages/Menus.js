@@ -112,11 +112,12 @@ const Menus = ({ history }) => {
                 setModals({ ...modals, addEditModalOpen: false })
                 setState({ ...state, loading: false, menus: updateMenus })
                 setMenu(initMenu)
+                Toast("SUCCESS", "Menu updated successfully");
             },
             error => {
                 console.log(error);
                 setState({ ...state, loading: false })
-                Toast("ERROR", "Error creating the account");
+                Toast("ERROR", "Error updating the menu");
             }
         )
     }
@@ -212,7 +213,6 @@ const Menus = ({ history }) => {
             submitConfigMethod: methodValue
         })
         setModals({ ...modals, configModalOpen: true })
-        console.log(data)
     }
 
     const editMenuConfig = () => {
@@ -220,15 +220,16 @@ const Menus = ({ history }) => {
         .then(
             res => {
                 let updateMenus = menus;
-                console.log(res.data)
                 const index = menus.findIndex(elem => elem._id == _id)
                 updateMenus[index] = res.data;
                 setModals({ ...modals, configModalOpen: false })
                 setState({ ...state, loading: false, menus: updateMenus })
                 setMenu(initMenu)
+                Toast("SUCCESS", "Menu updated successfully");
             },
             error => {
                 console.log(error)
+                Toast("ERROR", "Error updating the menu");
             }
         )
     }
@@ -430,7 +431,7 @@ const Menus = ({ history }) => {
     )
 
     return (
-        <Grid columns={1}>
+        <Grid columns={1} className="main-grid">
             {addMenuModal}
             {menuConfigModal}
             {deleteAccountModal}

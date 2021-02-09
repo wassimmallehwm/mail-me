@@ -1,33 +1,24 @@
 import { toast } from 'react-toastify';
 
+const toastConfig = {
+    position: "top-right",
+    autoClose: 3000,
+    hideProgressBar: true,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+};
+
 export const Toast = (type, message) => {
     switch(type){
         case "SUCCESS" : 
-            toast.success(message, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            })
+            toast.success(message, toastConfig)
             break;
         case "ERROR" : 
-            toast.error(message, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            })
+            toast.error(message, toastConfig)
             break;
         default : 
             console.log("TOAST undefined !");
-
     }
-
-    
 }

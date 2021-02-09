@@ -8,6 +8,7 @@ import draftToHtml from 'draftjs-to-html';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Toast } from '../../utils/toast';
 import Loading from '../Loading';
+import GuestHome from '../GuestHome';
 
 
 const Home = () => {
@@ -67,7 +68,6 @@ const Home = () => {
     }
     sendMail(data).then(
       () => {
-        console.log("Success")
         setState({ ...state, loading: false , sender: '', receiver: '', mailBody: ''})
         Toast("SUCCESS", "Email sent successfully");
       },
@@ -131,13 +131,8 @@ const Home = () => {
         mailForm()
         : (<Loading />)
       : (
-        <Grid columns={3}>
-          <Grid.Column>
-          </Grid.Column>
-          <Grid.Column>
-            <h5>Guest page</h5>
-          </Grid.Column>
-        </Grid>
+        <GuestHome/>
+        
       )
   )
 }
