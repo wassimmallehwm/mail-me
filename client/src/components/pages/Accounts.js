@@ -26,9 +26,7 @@ const Accounts = () => {
     useEffect(() => {
         user && accountsList(user.token).then(
             (res) => {
-                //setTimeout(() => {
-                    setState({...state, accounts: res.data })
-                //}, 60000)
+                setState({...state, accounts: res.data })
             },
             error => {
                 console.log(error);
@@ -185,8 +183,8 @@ const Accounts = () => {
                                         <Table.Cell>{data.label}</Table.Cell>
                                         <Table.Cell> {data.email} </Table.Cell>
                                         <Table.Cell>
-                                            <Button onClick={() => openEditAccountModal(data)} primary icon='edit'/> 
-                                            <Button onClick={() => openDeleteModal(data._id)} negative icon='trash'/> 
+                                            <Button circular onClick={() => openEditAccountModal(data)} primary icon='edit'/> 
+                                            <Button circular onClick={() => openDeleteModal(data._id)} negative icon='trash'/> 
                                         </Table.Cell>
                                     </Table.Row>
                                 ))

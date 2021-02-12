@@ -51,18 +51,18 @@ const FormRender = ({ match, history }) => {
     }, [match.params.menuId])
 
     const onFormSubmit = (event) => {
-        if(event.data){
+        if (event.data) {
             formSubmit(user.token, menu, event.data)
-            .then(
-                res => {
-                    history.push(menu.redirectMenu.url);
-                },
-                error => {
-                    console.log(error)
-                }
-            )
+                .then(
+                    res => {
+                        history.push(menu.redirectMenu.url);
+                    },
+                    error => {
+                        console.log(error)
+                    }
+                )
         }
-        
+
     }
 
     const onFormChange = (event) => {

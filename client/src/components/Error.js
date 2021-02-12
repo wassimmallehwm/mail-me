@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Grid } from 'semantic-ui-react'
 
-const Error = ({error, tryAgain}) => {
+const Error = ({error, tryAgain, btnLabel='Try again'}) => {
     return (
         <Grid>
             <Grid.Column textAlign="center">
@@ -9,7 +9,7 @@ const Error = ({error, tryAgain}) => {
                     {error.status}
                 </h1>
                 <h2 style={{marginTop: '-15px'}}>{error.message}</h2>
-                <Button onClick={tryAgain}>Try again</Button>
+                <Button onClick={tryAgain}> {btnLabel} </Button>
             </Grid.Column>
         </Grid>
     )

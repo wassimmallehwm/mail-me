@@ -46,11 +46,12 @@ const FormCreator = ({history, location}) => {
         setMenuForm(user.token, {menuId, formData})
         .then(
             res => {
+                Toast("SUCCESS", "Form saved successfully");
                 history.push('/menus')
             },
             error => {
                 console.log(error)
-                Toast("ERROR", "Error while creating the form");
+                Toast("ERROR", "Error while saving the form");
             }
         )
     }

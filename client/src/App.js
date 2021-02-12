@@ -11,6 +11,7 @@ import 'semantic-ui-react-icon-picker/dist/index.css';
 import Loading from './components/Loading';
 
 const Navbar = lazy(() => import('./components/Navbar'));
+const NotFound = lazy(() => import('./components/pages/NotFound'));
 const Accounts = lazy(() => import('./components/pages/Accounts'));
 const Home = lazy(() => import('./components/pages/Home'));
 const Login = lazy(() => import('./components/pages/Login'));
@@ -57,6 +58,7 @@ const App = () => {
               <ProtectedRoute exact path="/form/:menuId" component={FormRender} />
               <GuestRoute exact path="/register" component={Register} />
               <GuestRoute exact path="/login" component={Login} />
+              <Route component={NotFound} />
             </Switch>
           </Layout>
         </Suspense>

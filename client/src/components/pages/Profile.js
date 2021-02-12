@@ -164,17 +164,18 @@ const Profile = () => {
         </Modal>
     );
 
-    const updateUserDetails = (succesCallback, errorCallback) => {
+    const updateUserDetails = (stopLoadercallback) => {
         updateUser(user.token, userDetails).then(
             res => {
                 let userData = res.data;
                 userData.token = user.token;
                 login(userData);
-                succesCallback();
+                Toast("SUCCESS", "User details updated successfully");
+                stopLoadercallback();
             },
             error => {
                 Toast("ERROR", "Error updating user details");
-                errorCallback();
+                stopLoadercallback();
             }
         )
     }

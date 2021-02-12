@@ -2,10 +2,10 @@ import React, { useEffect, useContext, useState } from 'react'
 import { AuthContext } from '../../context/auth';
 import { mailsList } from '../../services/api';
 import { Table, Icon, Grid } from 'semantic-ui-react';
-import { ToastContainer, toast } from 'react-toastify';
 import moment from 'moment';
 import Loading from '../Loading';
 import { Toast } from '../../utils/toast';
+import NoData from '../NoData';
 
 const Mails = ({ history }) => {
     const { user } = useContext(AuthContext);
@@ -65,7 +65,8 @@ const Mails = ({ history }) => {
                     </>
                 ) :
                     (
-                        <h3>You sent no mails</h3>
+
+                        <NoData />
                     )
             }
         </Grid.Row>

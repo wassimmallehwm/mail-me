@@ -7,6 +7,7 @@ import { findAll } from '../../services/roles.service'
 import { Toast } from '../../utils/toast';
 import Loading from '../Loading';
 import moment from 'moment';
+import NoData from '../NoData';
 
 const Menus = ({ history }) => {
     const { user } = useContext(AuthContext)
@@ -423,7 +424,7 @@ const Menus = ({ history }) => {
                     </Table>
                 ) :
                     (
-                        <h3>No menu exists</h3>
+                        <NoData />
                     )
             }
 
