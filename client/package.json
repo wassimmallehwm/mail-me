@@ -30,6 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && workbox generateSW",
+    "serve" : "cd build && http-server && cd ..",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

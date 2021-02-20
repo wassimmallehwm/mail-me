@@ -1,16 +1,36 @@
 import React from 'react'
-import { Button, Container, Grid, Header, Icon, List, Segment } from 'semantic-ui-react'
-
+import { Container, Header, Segment } from 'semantic-ui-react'
+import Background from '../wall.png';
 const GuestHome = () => {
-    return (
-        <Grid columns={3}>
-          <Grid.Column>
-          </Grid.Column>
-          <Grid.Column>
-            <h5>Guest page</h5>
-          </Grid.Column>
-        </Grid>
-    )
+  return (
+    <Segment
+      inverted
+      textAlign='center'
+      style={{
+        minHeight: 750,
+        padding: '1em 0em',
+        backgroundImage: "url(" + Background + ")",
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain'
+      }}
+      vertical
+    >
+      <Container>
+        <Header
+          as='h4'
+          content='UNDER DESIGN'
+          inverted
+          color='blue'
+          style={{
+            fontSize: '4em',
+            fontWeight: 'normal',
+            marginTop: '4em',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)'
+          }}
+        />
+      </Container>
+    </Segment>
+  )
 }
 
 export default GuestHome

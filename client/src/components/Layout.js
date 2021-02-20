@@ -17,11 +17,7 @@ const Layout = ({sidebarVisible, closeSidebar, children}) => {
                 </div>
                 </SideBar>
             </Suspense>
-        ) : (
-            <Container>
-                {children}
-            </Container>
-        )
+        ) : children
         }
         </>
     )

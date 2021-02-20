@@ -172,3 +172,12 @@ tr {
   left: 1.5em!important;
   top: 20%!important;
 }
+
+.no-marg-menu{
+  margin: 0!important;
+}
+
+
+.ui.inverted.segment{
+  background-color: transparent!important;
+}
