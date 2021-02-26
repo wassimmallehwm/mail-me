@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const dbSeeder = require('./utils/databaseSeeder');
 const useRouter = require('./routers/user.routes');
+const userRequestRouter = require('./routers/user-request.routes');
 const mailRouter = require('./routers/mail.routes');
 const accountsRouter = require('./routers/accounts.routes');
 const menusRouter = require('./routers/menu.routes');
@@ -37,6 +38,7 @@ app.use('/api/mails', mailRouter);
 app.use('/api/accounts', accountsRouter);
 app.use('/api/menus', menusRouter);
 app.use('/api/roles', rolesRouter);
+app.use('/api/requests', userRequestRouter);
 
 app.listen(PORT, () => {
     console.log('Listening on port ' + PORT);

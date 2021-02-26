@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Form } from 'semantic-ui-react';
-import { changeUserPassword } from '../services/api'
+import { changeUserPassword } from '../services/users.service'
 import { Toast } from '../utils/toast';
 
 const ChangePassword = ({user}) => {

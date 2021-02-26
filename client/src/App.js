@@ -21,6 +21,8 @@ const Mails = lazy(() => import('./components/pages/Mails'));
 const MailContent = lazy(() => import('./components/pages/MailContent'));
 const Profile = lazy(() => import('./components/pages/Profile'));
 const Menus = lazy(() => import('./components/pages/Menus'));
+const Users = lazy(() => import('./components/pages/Users'));
+const RegisterRequests = lazy(() => import('./components/pages/RegisterRequests'));
 const FormCreator = lazy(() => import('./components/pages/FormCreator'));
 const FormRender = lazy(() => import('./components/pages/FormRender'));
 
@@ -52,6 +54,8 @@ const App = () => {
               <ProtectedRoute exact path="/mails" component={Mails} />
               <ProtectedRoute exact path="/accounts" component={Accounts} />
               <ProtectedRoute exact path="/menus" component={Menus} />
+              <ProtectedRoute exact path="/users" component={Users} />
+              <ProtectedRoute exact path="/requests" component={RegisterRequests} />
               <ProtectedRoute exact path="/mails/content" component={MailContent} />
               <ProtectedRoute exact path="/profile" component={Profile} />
               <ProtectedRoute exact path="/form-builder" component={FormCreator} />

@@ -1,13 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { Icon, Menu } from 'semantic-ui-react'
+import { Icon, Label, Menu } from 'semantic-ui-react'
 import { AuthContext } from '../context/auth'
-import { interceptToken } from '../services/api'
+import Emitter from '../services/events'
+import { interceptToken } from '../services/users.service'
+import EventsTypes from '../utils/EventsTypes'
 
-const Navbar = ({history, toggleSidebar}) => {
-    const handleItemClick = (e, { name }) => setaAtiveItem(name)
+const Navbar = ({ history, toggleSidebar }) => {
+  const handleItemClick = (e, { name }) => setaAtiveItem(name)
 
-    const {user, logout, login} = useContext(AuthContext);
+  const { user, logout, login } = useContext(AuthContext);
+  const [requestsCount, setRequestsCount] = useState(null)
 
   const refreshTokenCallback = (data) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
@@ -19,40 +22,55 @@ const Navbar = ({history, toggleSidebar}) => {
 
   const logoutUser = () => {
     history.push('/')
-    handleItemClick(null, {name: 'home'});
+    handleItemClick(null, { name: 'home' });
     logout();
   }
 
   useEffect(() => {
     interceptToken(refreshTokenCallback, logout);
+    Emitter.on(EventsTypes.REQUESTS_NUMBER, (requestsValue) => setRequestsCount(requestsValue));
   }, [])
 
-    const pathname = window.location.pathname
-    const path = pathname === '/' ? 'home' : pathname.substring(1)
-    const[activeItem, setaAtiveItem] = useState(path)
+  const pathname = window.location.pathname
+  const path = pathname === '/' ? 'home' : pathname.substring(1)
+  const [activeItem, setaAtiveItem] = useState(path)
 
-    const navbar = user ? (
-      <Menu pointing secondary size="massive" color="teal">
-          <Menu.Item onClick={toggleSidebar}>
-            <Icon name="sidebar" size='large'/>
-          </Menu.Item>
-          <Menu.Menu position='right'>
-          <Menu.Item
-            name='logout'
-            onClick={logoutUser}
-          />
-          </Menu.Menu>
-        </Menu>
-    ) : (
+  const navbar = user ? (
+    <Menu pointing secondary size="massive" color="teal">
+      <Menu.Item onClick={toggleSidebar}>
+        <Icon name="sidebar" size='large' />
+      </Menu.Item>
+      <Menu.Menu position='right'>
+        {
+          user.isAdmin && (
+            <Menu.Item as={Link} to="/requests">
+              <Icon name='user plus' />
+              {
+                requestsCount && requestsCount > 0 ? (
+                  <Label color='teal' attached="bottom right" circular>
+                    {requestsCount}
+                  </Label>
+                ): null
+              }
+            </Menu.Item>
+          )
+        }
+        <Menu.Item
+          name='logout'
+          onClick={logoutUser}
+        />
+      </Menu.Menu>
+    </Menu>
+  ) : (
       <Menu className="no-marg-menu" pointing secondary size="massive" color="teal">
-          <Menu.Item
-            name='home'
-            active={activeItem === 'home'}
-            onClick={handleItemClick}
-            as={Link}
-            to="/"
-          />
-          <Menu.Menu position='right'>
+        <Menu.Item
+          name='home'
+          active={activeItem === 'home'}
+          onClick={handleItemClick}
+          as={Link}
+          to="/"
+        />
+        <Menu.Menu position='right'>
           <Menu.Item
             name='login'
             active={activeItem === 'login'}
@@ -67,10 +85,10 @@ const Navbar = ({history, toggleSidebar}) => {
             as={Link}
             to="/register"
           />
-          </Menu.Menu>
-        </Menu>
+        </Menu.Menu>
+      </Menu>
     )
-    return navbar
+  return navbar
 }
 
 export default withRouter(Navbar)

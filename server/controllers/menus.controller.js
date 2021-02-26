@@ -30,7 +30,7 @@ module.exports.update = async (req, res) => {
         if (!label)
             return res.status(400).json({ msg: "Label is missing !" })
 
-        const menu = await Menu.findOne({_id});
+        const menu = await Menu.findOne({ _id });
         menu.label = label;
         menu.symbole = symbole;
         menu.roles = roles;
@@ -48,7 +48,7 @@ module.exports.submitConfig = async (req, res) => {
         if (!redirectMenu || !submitConfigUrl || !submitConfigMethod)
             return res.status(400).json({ msg: "Data is missing !" })
 
-        const menu = await Menu.findOne({_id});
+        const menu = await Menu.findOne({ _id });
         menu.redirectMenu = redirectMenu;
         menu.submitConfigUrl = submitConfigUrl;
         menu.submitConfigMethod = submitConfigMethod;
@@ -69,7 +69,7 @@ module.exports.setForm = async (req, res) => {
                 return res.status(400).json({ 'error': "Error while creating form file" })
             }
         });
-        const menu = await Menu.findOne({_id: menuId});
+        const menu = await Menu.findOne({ _id: menuId });
         menu.hasContent = true;
         await menu.save();
         res.status(200).json(true);
@@ -84,23 +84,23 @@ module.exports.getForm = async (req, res) => {
     try {
         const { menuId } = req.body;
         const filePath = 'public/forms/' + menuId + '.txt';
-        const menu = await Menu.findOne({_id: menuId})
-        .populate({path: 'redirectMenu', model: 'Menu', select: 'url'}).exec();
+        const menu = await Menu.findOne({ _id: menuId })
+            .populate({ path: 'redirectMenu', model: 'Menu', select: 'url' }).exec();
         if (fs.existsSync(filePath)) {
             fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).json({ 'error': "Error while reading the file" })
                 }
-                res.status(200).json({menu, form: data});
+                res.status(200).json({ menu, form: data });
             })
         } else {
-            res.status(200).json({menu, form: '[]'});
+            res.status(200).json({ menu, form: '[]' });
         }
         //res.status(400).json({ error:  "Error while getting the form"})
     } catch (e) {
         console.log('ERROR', e);
-        res.status(500).json({ error:  "Error while getting the form"})
+        res.status(500).json({ error: "Error while getting the form" })
     }
 }
 
@@ -165,7 +165,7 @@ module.exports.findAllByRole = async (req, res) => {
         res.status(200).json(menuList);
     } catch (e) {
         console.log('ERROR', e);
-        res.status(500).json({error: 'Error fetching the user menu'})
+        res.status(500).json({ error: 'Error fetching the user menu' })
     }
 }
 
@@ -181,22 +181,24 @@ module.exports.findAllGuest = async (req, res) => {
         res.status(200).json(menuList);
     } catch (e) {
         console.log('ERROR', e);
-        res.status(500).json({error: 'Error fetching guest menus'})
+        res.status(500).json({ error: 'Error fetching guest menus' })
     }
 }
 
-
-
-// module.exports.remove = async (req, res) => {
-//     try{
-//         const {id} = req.body;
-//         const user = await User.findOne({_id: req.user});
-//         user.accounts = user.accounts.filter(acc => acc._id != id);
-//         user.markModified('accounts');
-//         await user.save();
-//         res.status(200).json(user.accounts);
-//     } catch(e){
-//         console.log('ERROR', e);
-//         res.status(500).send('Error deleting the account')
-//     }
-// }
+module.exports.remove = async (req, res) => {
+    try {
+        const { id } = req.params;
+        Menu.deleteOne({_id: id}, (err, success) => {
+            if (!err) {
+                const filePath = 'public/forms/' + id + '.txt';
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+                res.status(200).json({ success: "Menu deleted successfully" });
+            }
+        });
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(500).json({ error: 'Error deleting the menu' })
+    }
+}

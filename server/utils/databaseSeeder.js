@@ -73,11 +73,55 @@ const createCollections = async () => {
     await createMenus(adminRole, guestRole);
 }
 
+
+const addUsersMenu = async () => {
+    const role = await Role.findOne({ label : 'ADMIN' });
+    const users = new Menu();
+    users.label = 'Users';
+    users.url = '/users';
+    users.symbole = 'users';
+    users.roles = [role._id];
+    users.isArtificial = false;
+    users.hasContent = true;
+    await users.save();
+}
+
+
+
+
+
+const changeMenuIcon = async () => {
+   const accounts = Menu.findOne({label: 'Accounts'})
+   accounts.symbole = 'cog';
+   await accounts.save();
+}
+
+
+const changeAppVersion = async (oldVersion, version) => {
+    const appData = await AppConfig.findOne({version: oldVersion})
+    appData.version = version;
+    appData.save();
+}
+
+const v1_0To1_1 = async () => {
+    await addUsersMenu();
+    await changeMenuIcon();
+    await changeAppVersion('1.0.0', '1.1.0');
+}
+
+
+const migration = async (data) => {
+    if(data.version === '1.0.0'){
+        await v1_0To1_1();
+    }
+}
+
 const dbSeeder = async () => {
     AppConfig.find().then(
         async res => {
             if (res && res.length > 0) {
                 console.log('App already initialized !')
+                await migration(res[0]);
                 return;
             } else {
                 console.log('Initializing App ...')

@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react'
 import { IconPicker } from 'semantic-ui-react-icon-picker';
 import { Button, Table, Grid, Modal, Form, Dropdown } from 'semantic-ui-react'
 import { AuthContext } from '../../context/auth'
-import { findAllArtificial, createOrUpdate, findAllGuest, submitConfig } from '../../services/menu.service'
+import { findAllArtificial, createOrUpdate, findAllGuest, submitConfig, deleteOneMenu } from '../../services/menu.service'
 import { findAll } from '../../services/roles.service'
 import { Toast } from '../../utils/toast';
 import Loading from '../Loading';
@@ -13,7 +13,7 @@ const Menus = ({ history }) => {
     const { user } = useContext(AuthContext)
 
     const [state, setState] = useState({
-        deleteAccount: null,
+        deleteMenu: null,
         menus: null,
         mode: "add",
         modalTitle: "Add Menu",
@@ -48,7 +48,7 @@ const Menus = ({ history }) => {
     const [menu, setMenu] = useState(initMenu)
 
     const { _id, symbole, label, roles, submitConfigUrl, submitConfigMethod, redirectMenu } = menu;
-    const { deleteAccount, menus, mode, modalTitle, loading } = state;
+    const { deleteMenu, menus, mode, modalTitle, loading } = state;
     const { addEditModalOpen, deleteModalOpen, configModalOpen } = modals;
 
     const getUserRoles = () => {
@@ -125,28 +125,31 @@ const Menus = ({ history }) => {
 
     const openDeleteModal = (data) => {
         setModals({ ...modals, deleteModalOpen: true })
-        setState({ ...state, deleteAccount: data });
+        setState({ ...state, deleteMenu: data });
     }
 
-    const closeDeleteModal = (data) => {
+    const closeDeleteModal = () => {
         setModals({ ...modals, deleteModalOpen: false })
-        setState({ ...state, deleteAccount: null });
+        setState({ ...state, deleteMenu: null });
     }
 
-    const removeAccount = () => {
-        // deleteUserAccount(user.token, {id: deleteAccount}).then(
-        //     (res) => {
-        //         setState({...state, deleteModalOpen: false, menus: res.data, deleteAccount: null})
-        //     },
-        //     error => {
-        //         console.log(error);
-        //         setState({...state, deleteModalOpen: false, deleteAccount: null})
-        //         Toast("ERROR", "Error deleting the account");
-        //     }
-        // )
+    const removeMenu = () => {
+        deleteOneMenu(user.token, deleteMenu).then(
+            (res) => {
+                let menusList = menus;
+                menusList = menusList.filter(elem => elem._id != deleteMenu);
+                setModals({ ...modals, deleteModalOpen: false })
+                setState({...state, menus: menusList, deleteMenu: null})
+            },
+            error => {
+                console.log(error);
+                setState({...state, deleteModalOpen: false, deleteMenu: null})
+                Toast("ERROR", "Error deleting the Menu");
+            }
+        )
     }
 
-    const deleteAccountModal = (
+    const deleteMenuModal = (
         <Modal
             closeOnEscape={true}
             closeOnDimmerClick={true}
@@ -158,13 +161,13 @@ const Menus = ({ history }) => {
         >
             <Modal.Header>Confirmation</Modal.Header>
             <Modal.Content>
-                <h3>Are you sure you want to delete the account ?</h3>
+                <h3>Are you sure you want to delete the Menu ?</h3>
             </Modal.Content>
             <Modal.Actions>
                 <Button onClick={closeDeleteModal} basic>
                     Cancel
         </Button>
-                <Button onClick={removeAccount} negative>
+                <Button onClick={removeMenu} negative>
                     Delete
         </Button>
             </Modal.Actions>
@@ -435,7 +438,7 @@ const Menus = ({ history }) => {
         <Grid columns={1} className="main-grid">
             {addMenuModal}
             {menuConfigModal}
-            {deleteAccountModal}
+            {deleteMenuModal}
             {menus ? dataTable : (<Loading />)}
         </Grid>
     )

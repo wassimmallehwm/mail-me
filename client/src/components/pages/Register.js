@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Button, Form, Grid } from 'semantic-ui-react';
 import { AuthContext } from '../../context/auth';
 import { useForm } from '../../utils/hooks';
-import { register } from '../../services/api';
+import { register } from '../../services/users.service';
 import { Toast } from '../../utils/toast';
 
 const Register = ({ history }) => {
@@ -22,8 +22,11 @@ const Register = ({ history }) => {
         const data = { username, email, password, passwordCheck };
         register(data).then(
             (res) => {
-                context.login(res.data)
-                history.push('/')
+                if(res.data){
+                    Toast("SUCCESS", "Registered successfully");
+                    Toast("INFO", "You will get notified by mail when the account is activated");
+                    history.push('/')
+                }
             },
             error => {
                 console.log(error)

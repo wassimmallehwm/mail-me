@@ -46,8 +46,7 @@ const UserSchema = new mongoose.Schema({
     accounts: [
         {
             label: {
-                type: String,
-                unique: true
+                type: String
             },
             email: {
                 type: String,
@@ -61,7 +60,7 @@ const UserSchema = new mongoose.Schema({
     ],
     enabled : {
         type: Boolean,
-        default: true
+        default: false
     }
 }, {
     timestamps: true

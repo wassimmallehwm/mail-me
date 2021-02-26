@@ -2,8 +2,11 @@ import React, { useState, useContext } from 'react'
 import { Button, Form, Grid } from 'semantic-ui-react';
 import { AuthContext } from '../../context/auth';
 import { useForm } from '../../utils/hooks';
-import { login } from '../../services/api';
+import { login } from '../../services/users.service';
 import { Toast } from '../../utils/toast';
+import { count } from '../../services/register-request.service';
+import Emitter from '../../services/events';
+import EventsTypes from '../../utils/EventsTypes';
 
 const Login = ({ history }) => {
     const context = useContext(AuthContext)
@@ -15,17 +18,28 @@ const Login = ({ history }) => {
     const { onChange, onSubmit, values } = useForm(loginUser, initState)
     const [errors, setErrors] = useState({})
 
+    const getUserRequestsCount = (user) => {
+        user.isAdmin && count(user.token).then(
+            (res) => {
+                Emitter.emit(EventsTypes.REQUESTS_NUMBER, res.data);
+            },
+            error => {
+                console.log(error);
+            }
+        )
+    }
+
     const logUser = () => {
         const { email, password } = values;
         const data = { email, password };
         login(data).then(
             (res) => {
                 context.login(res.data)
+                getUserRequestsCount(res.data)
                 history.push('/')
             },
             error => {
-                console.log(error)
-                Toast("ERROR", "Error login in");
+                Toast("ERROR", error.response.data.msg);
             }
         )
     }
@@ -34,7 +48,7 @@ const Login = ({ history }) => {
         logUser()
     }
     return (
-        <Grid style={{height: '80vh'}} verticalAlign='middle' columns={1} centered>
+        <Grid style={{ height: '80vh' }} verticalAlign='middle' columns={1} centered>
             <Grid.Row>
                 <Grid.Column mobile={16} tablet={12} computer={6}>
                     <Form onSubmit={onSubmit} className={values.loading ? "loading" : ''} noValidate>

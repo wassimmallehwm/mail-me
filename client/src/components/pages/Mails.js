@@ -56,7 +56,7 @@ const Mails = ({ history }) => {
                                         <Table.Row key={i} onClick={() => openMail(mail)}>
                                             <Table.Cell>{mail.to}</Table.Cell>
                                             <Table.Cell> {formatDate(mail.createdAt)} </Table.Cell>
-                                            <Table.Cell> {mail.read ? (<Icon name='checkmark' />) : (<Icon name='close' />)} </Table.Cell>
+                                            <Table.Cell> {mail.read ? (<Icon className="checkmark-icon" name='checkmark' />) : (<Icon style={{float: 'none'}} name='close' />)} </Table.Cell>
                                         </Table.Row>
                                     ))
                                 }

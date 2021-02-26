@@ -68,3 +68,11 @@ export const getMenuForm = (token, data) => {
     }
   });
 }
+
+export const deleteOneMenu = (token, id) => {
+  return Axios.post(API_URL + "/remove/" + id, null, {
+    headers: {
+      "x-auth-token": token
+    }
+  });
+}

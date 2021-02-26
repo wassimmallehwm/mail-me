@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const upload = require('../utils/imageUpload');
+const RegisterRequest = require('../models/register.request.model');
 
 function generateToken(id) {
     return token = jwt.sign({
@@ -12,7 +13,7 @@ function generateToken(id) {
         { expiresIn: '1hr' })
 }
 
-function userResponse(data, token) {
+function userResponse(data, userRole, token) {
     const {
         _id,
         username,
@@ -30,6 +31,7 @@ function userResponse(data, token) {
         lastname,
         email,
         role,
+        isAdmin: userRole == "ADMIN" ? true : false, 
         createdAt,
         imagePath,
         token
@@ -62,9 +64,10 @@ module.exports.register = async (req, res) => {
 
 
         const result = await user.save();
-        const token = generateToken(result._id);
-        const response = userResponse(result, token)
-        res.status(201).json(response);
+        const userRequest = new RegisterRequest();
+        userRequest.user = result._id;
+        await userRequest.save();
+        res.status(201).json(true);
     } catch (e) {
         console.log('ERROR', e);
         res.status(500).json({ 'error': e })
@@ -80,14 +83,17 @@ module.exports.login = async (req, res) => {
         const user = await User.findOne({ email: email });
         if (!user)
             return res.status(404).json({ msg: "Account does not exist !" })
+        if (!user.enabled)
+            return res.status(400).json({ msg: "Account disabled !" })
 
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch)
             return res.status(404).json({ msg: "Invalid Credentials !" })
 
+        const userRole = await Role.findById(user.role);
         const token = generateToken(user._id);
-        const response = userResponse(user, token)
+        const response = userResponse(user, userRole.label, token)
         res.status(200).json(response);
     } catch (e) {
         console.log('ERROR', e);
@@ -127,7 +133,6 @@ module.exports.uploadImage = async (req, res) => {
         console.log('ERROR', e);
     }
 }
-
 
 module.exports.update = async (req, res) => {
     try {
@@ -170,12 +175,10 @@ module.exports.changePassword = async (req, res) => {
     }
 }
 
-
-
 module.exports.findAll = async (req, res) => {
     try {
-        const users = await User.find();
-        res.json(users);
+        const users = await User.find().select('_id username email createdAt')
+        res.status(200).json(users);
     } catch (e) {
         console.log('ERROR', e);
     }
@@ -183,43 +186,9 @@ module.exports.findAll = async (req, res) => {
 
 module.exports.findOne = async (req, res) => {
     try {
-        const User = await User.findById(req.params.id);
-        res.json(User);
+        const user = await User.findById(req.params.id).select('-password -mails -accounts -createdAt -updatedAt -__v');
+        res.status(200).json(user);
     } catch (e) {
         console.log('ERROR', e);
-    }
-}
-
-module.exports.current = async (req, res) => {
-    try {
-        const user = await User.findById(req.user);
-        return res.json({
-            displayName: user.displayName,
-            id: user._id
-        });
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({ error: err.message });
-    }
-}
-
-module.exports.verifyToken = async (req, res) => {
-    try {
-        const token = req.header("x-auth-token");
-        if (!token) {
-            return res.json(false);
-        }
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        if (!verified) {
-            return res.json(false);
-        }
-        const user = await User.findById(verified.id);
-        if (!user) {
-            return res.json(false);
-        }
-        return res.json(true);
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({ error: err.message });
     }
 }

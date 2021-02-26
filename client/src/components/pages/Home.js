@@ -23,8 +23,8 @@ const Home = () => {
   })
 
   const { receiver, sender, subject, accounts, mailBody } = state;
-
-  useEffect(() => {
+  
+  const getUserAccounts = () => {
     user && accountsList(user.token).then(
       (res) => {
         let values = [];
@@ -38,6 +38,10 @@ const Home = () => {
         Toast("ERROR", "Error loading accounts");
       }
     )
+  }
+
+  useEffect(() => {
+    getUserAccounts();
   }, []);
 
 

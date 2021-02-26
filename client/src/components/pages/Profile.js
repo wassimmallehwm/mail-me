@@ -4,7 +4,7 @@ import Loading from '../Loading';
 import { Toast } from '../../utils/toast';
 import Compress from 'compress.js';
 import { Button, Image, Grid, Modal, Loader, Segment, Dimmer, Tab } from 'semantic-ui-react';
-import { uploadUserImage, updateUser } from '../../services/api';
+import { uploadUserImage, updateUser } from '../../services/users.service';
 import UserDetails from '../UserDetails';
 import ChangePassword from '../ChangePassword';
 import ImageEditor from '../ImageEditor';
@@ -26,6 +26,8 @@ const Profile = () => {
         active: false
     })
 
+    const imgUrl = config.publicUrl + "images/users/";
+
     const compress = new Compress()
 
     const {active, modalLoading, selectedFile, selectedFileName, selectedFileType, previewImage, imagePreviewModalOpen, profileImageModalOpen, tabIndex, userDetails } = state;
@@ -43,8 +45,6 @@ const Profile = () => {
     ]
 
     const fileRef = useRef();
-
-    const imgUrl = config.publicUrl + "images/users/";
 
     const onImageClick = () => {
         fileRef.current.click();
