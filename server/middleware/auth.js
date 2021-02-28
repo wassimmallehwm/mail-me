@@ -38,5 +38,19 @@ module.exports.admin = async (req, res, next) => {
         res.status(500).json({error: e});
     }
 }
+module.exports.ownerOrAdmin = async (req, res, next) => {
+    try{
+        const {id} = req.params;
+        const user = await User.findById(req.user)
+        .populate('role')
+        .exec();
+        if(user.role.label != 'ADMIN' && user._id != id){
+            return res.status(403).json({msg : "Not Authorized !"})
+        }
+        next();
+    } catch(e){
+        res.status(500).json({error: e});
+    }
+}
 
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Button, Form, Grid, Modal, Table, Image, Checkbox } from 'semantic-ui-react';
 import { AuthContext } from '../../context/auth'
-import { findAll, findOne } from '../../services/users.service'
+import { findAll, findOne, removeUser, addOrUpdateUser } from '../../services/users.service'
 import { Toast } from '../../utils/toast';
 import Loading from '../Loading';
 import moment from 'moment';
@@ -28,6 +28,9 @@ const Users = () => {
     const [deleteUser, setDeleteUser] = useState(null);
     const [editUserModal, setEditUserModal] = useState(false);
     const [deleteUserModal, setDeleteUserModal] = useState(false);
+    const [password, setPassword] = useState('');
+    const [passwordCheck, setPasswordCheck] = useState('');
+    const [mode, setMode] = useState('add');
     const imgUrl = config.publicUrl + "images/users/";
 
     const getUsers = () => {
@@ -54,12 +57,66 @@ const Users = () => {
         )
     }
 
+    const removeItem = (id) => {
+        let list = usersList.filter(elem => elem._id != id);
+        setUsersList(list);
+    }
+
+    const addItem = (item) => {
+        let list = usersList;
+        list.push(item);
+        setUsersList(list);
+    }
+
+    const updateItem = (item) => {
+        let list = usersList;
+        const index = list.findIndex(elem => elem._id == item._id)
+        list[index] = item;
+        setUsersList(list);
+    }
+
+    const removeUserAccount = () => {
+        user && removeUser(user.token, deleteUser).then(
+            (res) => {
+                removeItem(deleteUser)
+                Toast("SUCCESS", "User deleted successfully");
+            },
+            error => {
+                console.log(error);
+                Toast("ERROR", "Error deleting user !");
+            }
+        )
+    }
+
     useEffect(() => {
         getUsers();
     }, []);
 
     const addOrEditUser = () => {
-        console.log(editUser)
+        setLoading(true);
+        let userData = null
+        if(mode === 'add'){
+            userData = {...editUser, password, passwordCheck}
+        } else {
+            userData = editUser
+        }
+        user && addOrUpdateUser(user.token, mode, userData).then(
+            (res) => {
+                setLoading(false);
+                if(mode === 'add'){
+                    addItem(res.data);
+                }else {
+                    updateItem(res.data);
+                }
+                closeAddModal();
+                Toast("SUCCESS", "User details saved successfully");
+            },
+            error => {
+                console.log(error);
+                setLoading(false);
+                Toast("ERROR", "Error saving user details !");
+            }
+        )
     }
 
     const formatDate = date => {
@@ -71,11 +128,13 @@ const Users = () => {
     }
 
     const closeAddModal = () => {
+        setMode('add')
         setEditUserModal(false)
         setEditUser(initUser)
     }
 
     const openEditModal = (data) => {
+        setMode('edit')
         setEditUser(data)
         getOneUser(data._id)
         openAddModal()
@@ -86,17 +145,23 @@ const Users = () => {
         setDeleteUserModal(true);
     }
 
+    const closeDeleteModal = (data) => {
+        setDeleteUser(null)
+        setDeleteUserModal(false);
+    }
+
     const onEditUserChange = (e) => {
-        setEditUser({...editUser, [e.target.name]: e.target.value})
+        setEditUser({ ...editUser, [e.target.name]: e.target.value })
     }
 
     const onChangeEnabled = (e, data) => {
-        setEditUser({...editUser, enabled: data.checked})
+        setEditUser({ ...editUser, enabled: data.checked })
     }
 
-    const userDetailsForm= (
+    const userDetailsForm = (
         <Form className={loading ? "loading" : ''} noValidate>
-            <Checkbox label='Enabled' checked={editUser.enabled} onChange={onChangeEnabled}/>
+            <Checkbox label='Enabled' checked={editUser.enabled} onChange={onChangeEnabled} />
+            {editUser.imagePath && <Image className="edit-user-img" floated="right" circular size='tiny' src={imgUrl + editUser.imagePath} />}
             <Form.Input
                 label="Username"
                 placeholder="Username"
@@ -131,6 +196,30 @@ const Users = () => {
                 value={editUser.email}
                 onChange={onEditUserChange}
             />
+            {
+                mode === 'add' ?
+                (
+                    <>
+                    <Form.Input
+                            label="Password"
+                            placeholder="Password"
+                            name="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+
+                        <Form.Input
+                            label="Confirm Password"
+                            placeholder="Confirm Password"
+                            name="passwordCheck"
+                            type="password"
+                            value={passwordCheck}
+                            onChange={(e) => setPasswordCheck(e.target.value)}
+                        />
+                    </>
+                ): null
+            }
         </Form>
     )
 
@@ -147,7 +236,7 @@ const Users = () => {
                 trigger={<Button primary icon='plus' floated="right" />}
             >
                 <Modal.Header>
-                {editUser.imagePath && <Image circular size='tiny' src={imgUrl + editUser.imagePath} />}
+                    <h4>{mode === 'add' ? 'Add User' : 'Edit User'}</h4>
                 </Modal.Header>
                 <Modal.Content>
                     {userDetailsForm}
@@ -164,6 +253,31 @@ const Users = () => {
         </Grid.Column>
     );
 
+    const deleteModal = (
+        <Modal
+            closeOnEscape={true}
+            closeOnDimmerClick={true}
+            open={deleteUserModal}
+            dimmer="blurring"
+            size="tiny"
+            onOpen={() => setDeleteUserModal(true)}
+            onClose={closeDeleteModal}
+        >
+            <Modal.Header>Confirmation</Modal.Header>
+            <Modal.Content>
+                <h3>Are you sure you want to delete the User ?</h3>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={closeDeleteModal} basic>
+                    Cancel
+        </Button>
+                <Button onClick={removeUserAccount} negative>
+                    Delete
+        </Button>
+            </Modal.Actions>
+        </Modal>
+    );
+
     const dataTable = (
         <Grid.Row>
             {
@@ -172,6 +286,7 @@ const Users = () => {
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell>Username</Table.HeaderCell>
+                                <Table.HeaderCell>Role</Table.HeaderCell>
                                 <Table.HeaderCell>Created at</Table.HeaderCell>
                                 <Table.HeaderCell>Actions</Table.HeaderCell>
                             </Table.Row>
@@ -182,11 +297,19 @@ const Users = () => {
                                 usersList.map((data, i) => (
                                     <Table.Row key={data._id}>
                                         <Table.Cell>{data.username}</Table.Cell>
+                                        <Table.Cell>{data.role.label}</Table.Cell>
                                         <Table.Cell>{formatDate(data.createdAt)}</Table.Cell>
-                                        <Table.Cell>
-                                            <Button onClick={() => openEditModal(data)} circular primary icon='edit' />
-                                            <Button onClick={() => openDeleteModal(data._id)} circular negative icon='trash' />
-                                        </Table.Cell>
+                                        {
+                                            data.role.label != 'ADMIN' ?
+                                                (
+                                                    <Table.Cell>
+                                                        <Button onClick={() => openEditModal(data)} circular primary icon='edit' />
+                                                        <Button onClick={() => openDeleteModal(data._id)} circular negative icon='trash' />
+                                                    </Table.Cell>
+                                                )
+                                                : null
+                                        }
+
                                     </Table.Row>
                                 ))
                             }
@@ -204,6 +327,7 @@ const Users = () => {
     return (
         <Grid columns={1} className="main-grid">
             {addUserModal}
+            {deleteModal}
             {usersList ? dataTable : (<Loading />)}
         </Grid>
     )

@@ -181,3 +181,8 @@ tr {
 .ui.inverted.segment{
   background-color: transparent!important;
 }
+
+.edit-user-img{
+  width: 50px!important;
+  margin: 0!important;
+}

@@ -9,6 +9,7 @@ import UserDetails from '../UserDetails';
 import ChangePassword from '../ChangePassword';
 import ImageEditor from '../ImageEditor';
 import config from '../../config';
+import DeleteAccount from '../DeleteAccount';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext);
@@ -30,18 +31,18 @@ const Profile = () => {
 
     const compress = new Compress()
 
-    const {active, modalLoading, selectedFile, selectedFileName, selectedFileType, previewImage, imagePreviewModalOpen, profileImageModalOpen, tabIndex, userDetails } = state;
+    const { active, modalLoading, selectedFile, selectedFileName, selectedFileType, previewImage, imagePreviewModalOpen, profileImageModalOpen, tabIndex, userDetails } = state;
 
     useEffect(() => {
-        const {username, firstname, lastname, email} = user;
-        const details = {username, firstname, lastname, email};
-        setState({...state, userDetails: details});
+        const { username, firstname, lastname, email } = user;
+        const details = { username, firstname, lastname, email };
+        setState({ ...state, userDetails: details });
     }, [])
 
     const panes = [
-        { menuItem: 'Details', render: () => null},
+        { menuItem: 'Details', render: () => null },
         { menuItem: 'Change Password', render: () => null },
-        { menuItem: 'Tab 3', render: () => null },
+        { menuItem: 'Delete Account', render: () => null },
     ]
 
     const fileRef = useRef();
@@ -63,8 +64,8 @@ const Profile = () => {
 
     const urltoFile = (url, filename, mimeType) => {
         return (fetch(url)
-            .then((res) => {return res.arrayBuffer();})
-            .then((buf) => {return new File([buf], filename,{type:mimeType});})
+            .then((res) => { return res.arrayBuffer(); })
+            .then((buf) => { return new File([buf], filename, { type: mimeType }); })
         );
     }
 
@@ -82,18 +83,18 @@ const Profile = () => {
     const resizeImageFn = async (file) => {
 
         const resizedImage = await compress.compress([file], {
-          size: 2,
-          quality: 1,
-          maxWidth: 400,
-          maxHeight: 400,
-          resize: true 
+            size: 2,
+            quality: 1,
+            maxWidth: 400,
+            maxHeight: 400,
+            resize: true
         })
         const img = resizedImage[0];
         const base64str = img.data
         const imgExt = img.ext
         const resizedFiile = Compress.convertBase64ToFile(base64str, imgExt)
         return resizedFiile;
-      }
+    }
 
     const uploadImage = async () => {
         setState({ ...state, modalLoading: true })
@@ -145,11 +146,11 @@ const Profile = () => {
             onClose={closeImagePreviewModal}
         >
             <Modal.Content>
-                <Dimmer.Dimmable style={{textAlign: "center"}} as={Segment} dimmed={modalLoading}>
+                <Dimmer.Dimmable style={{ textAlign: "center" }} as={Segment} dimmed={modalLoading}>
                     <Dimmer inverted active={modalLoading} >
                         <Loader active />
                     </Dimmer>
-                    <ImageEditor imgUrl={previewImage} saveAfterChange={saveImageAfterChange}/>
+                    <ImageEditor imgUrl={previewImage} saveAfterChange={saveImageAfterChange} />
                     {/* <Image size="medium" centered src={previewImage} style={{ maxHeight: '50vh', width: 'auto' }} /> */}
                 </Dimmer.Dimmable>
             </Modal.Content>
@@ -183,34 +184,40 @@ const Profile = () => {
     const onUserDetailsChange = (e) => {
         const data = userDetails
         data[e.target.name] = e.target.value;
-        setState({...state, userDetails: data})
+        setState({ ...state, userDetails: data })
     }
 
     const onTabChange = (event, data) => {
-        setState({...state, tabIndex: data.activeIndex})
+        setState({ ...state, tabIndex: data.activeIndex })
     }
 
     const pageContent = () => {
-        switch(tabIndex) {
-            case 0 :
-                return (<UserDetails 
+        switch (tabIndex) {
+            case 0:
+                return (<UserDetails
                     userDetails={userDetails}
                     onUserDetailsChange={onUserDetailsChange}
                     updateUserDetails={updateUserDetails}
-                    />);
-            case 1 :
-                return (<ChangePassword user={user}/>);
-            default :
-                return (<h1>TEST</h1>);
+                />);
+            case 1:
+                return (<ChangePassword user={user} />);
+            case 2:
+                return (<DeleteAccount />);
+            default:
+                return (<UserDetails
+                    userDetails={userDetails}
+                    onUserDetailsChange={onUserDetailsChange}
+                    updateUserDetails={updateUserDetails}
+                />);
         }
     }
 
     const openImageProfile = () => {
-        setState({...state, profileImageModalOpen: true});
+        setState({ ...state, profileImageModalOpen: true });
     }
 
     const closeImageProfile = () => {
-        setState({...state, profileImageModalOpen: false});
+        setState({ ...state, profileImageModalOpen: false });
     }
 
     const profileImagePreviewModal = (
@@ -230,18 +237,18 @@ const Profile = () => {
 
     const content = (
         <div>
-            <Button onClick={openImageProfile} inverted basic icon="expand arrows alternate"/>
-            <Button onClick={onImageClick} inverted basic icon="edit"/>
+            <Button onClick={openImageProfile} inverted basic icon="expand arrows alternate" />
+            <Button onClick={onImageClick} inverted basic icon="edit" />
         </div>
-      )
+    )
 
-      const handleShow = () => {
-        setState({...state, active: true })
-      }
+    const handleShow = () => {
+        setState({ ...state, active: true })
+    }
 
-      const handleHide = () => {
-        setState({...state, active: false })
-      }
+    const handleHide = () => {
+        setState({ ...state, active: false })
+    }
 
 
     return (
@@ -252,23 +259,23 @@ const Profile = () => {
             <Grid.Row>
                 <Grid.Column width={4}>
                     {/* <Image style={{ cursor: "pointer" }} onClick={onImageClick} size="medium" centered circular src={imgUrl + user.imagePath} /> */}
-                    <div style={{textAlign: 'center'}}>
-                    <Dimmer.Dimmable
-                        as={Image}
-                        circular
-                        dimmed={active}
-                        dimmer={{ active, content }}
-                        onMouseEnter={handleShow}
-                        onMouseLeave={handleHide}
-                        size='medium'
-                        src={imgUrl + user.imagePath}
-                    />
+                    <div style={{ textAlign: 'center' }}>
+                        <Dimmer.Dimmable
+                            as={Image}
+                            circular
+                            dimmed={active}
+                            dimmer={{ active, content }}
+                            onMouseEnter={handleShow}
+                            onMouseLeave={handleHide}
+                            size='medium'
+                            src={imgUrl + user.imagePath}
+                        />
                     </div>
-                <Tab onTabChange={onTabChange} grid={{ tabWidth: 16 }} menu={{ secondary: true, fluid: true, vertical: true, className: "menu-tab" }} panes={panes} />
-                    
+                    <Tab onTabChange={onTabChange} grid={{ tabWidth: 16 }} menu={{ secondary: true, fluid: true, vertical: true, className: "menu-tab" }} panes={panes} />
+
                 </Grid.Column>
                 <Grid.Column width={12}>
-                    { userDetails ? pageContent() : (<Loading/>)}
+                    {userDetails ? pageContent() : (<Loading />)}
                 </Grid.Column>
             </Grid.Row>
             <Grid.Row>
