@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 var path = require('path');
+const http = require('http');
 const PORT = process.env.PORT || 4000;
 require('dotenv').config();
 
@@ -15,12 +16,16 @@ const mailRouter = require('./routers/mail.routes');
 const accountsRouter = require('./routers/accounts.routes');
 const menusRouter = require('./routers/menu.routes');
 const rolesRouter = require('./routers/roles.routes');
+const messageRouter = require('./routers/message.routes');
+const conversationRouter = require('./routers/conversation.routes');
+const ioConfig = require('./socket');
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.static('resources'));
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(morgan('dev'));  
+
 
 mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
@@ -39,7 +44,11 @@ app.use('/api/accounts', accountsRouter);
 app.use('/api/menus', menusRouter);
 app.use('/api/roles', rolesRouter);
 app.use('/api/requests', userRequestRouter);
+app.use('/api/messages', messageRouter);
+app.use('/api/conversations', conversationRouter);
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+ioConfig(server)
+server.listen(PORT, () => {
     console.log('Listening on port ' + PORT);
 });

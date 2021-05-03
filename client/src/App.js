@@ -8,8 +8,11 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'semantic-ui-react-icon-picker/dist/index.css';
-import Loading from './components/Loading';
+import { withNamespaces } from 'react-i18next';
+import i18n from './utils/i18n';
 
+import Loading from './components/Loading';
+const Messenger = lazy(() => import('./components/pages/chat/Messenger'));
 const Navbar = lazy(() => import('./components/Navbar'));
 const NotFound = lazy(() => import('./components/pages/NotFound'));
 const Accounts = lazy(() => import('./components/pages/Accounts'));
@@ -35,6 +38,10 @@ const App = () => {
     setSidebarVisible(!sidebarVisible);
   }
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  }
+
   const { innerWidth: width, innerHeight: height } = window;
 
   const closeSidebar = () => {
@@ -46,11 +53,12 @@ const App = () => {
     <AuthProvider>
       <Router >
         <Suspense fallback={(<Loading/>)}>
-          <Navbar history={history} toggleSidebar={toggleSidebar} />
+          <Navbar history={history} toggleSidebar={toggleSidebar} changeLanguage={changeLanguage} />
           <ToastContainer />
           <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar}>
             <Switch>
               <Route exact path="/" component={Home} />
+              <ProtectedRoute exact path="/messenger" component={Messenger}/>
               <ProtectedRoute exact path="/mails" component={Mails} />
               <ProtectedRoute exact path="/accounts" component={Accounts} />
               <ProtectedRoute exact path="/menus" component={Menus} />
@@ -71,4 +79,4 @@ const App = () => {
   );
 }
 
-export default App
+export default withNamespaces()(App)

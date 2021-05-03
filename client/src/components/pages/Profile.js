@@ -10,6 +10,7 @@ import ChangePassword from '../ChangePassword';
 import ImageEditor from '../ImageEditor';
 import config from '../../config';
 import DeleteAccount from '../DeleteAccount';
+import trans from '../../utils/translate';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext);
@@ -40,9 +41,9 @@ const Profile = () => {
     }, [])
 
     const panes = [
-        { menuItem: 'Details', render: () => null },
-        { menuItem: 'Change Password', render: () => null },
-        { menuItem: 'Delete Account', render: () => null },
+        { menuItem: trans('details'), render: () => null },
+        { menuItem: trans('changePassword'), render: () => null },
+        { menuItem: trans('deleteAccount'), render: () => null },
     ]
 
     const fileRef = useRef();

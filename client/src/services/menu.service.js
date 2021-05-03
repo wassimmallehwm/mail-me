@@ -29,6 +29,22 @@ export const update = (token, data) => {
   });
 }
 
+export const updateOrder = (token, data) => {
+  return Axios.post(API_URL + "/updateOrder", data, {
+    headers: {
+      "x-auth-token": token
+    }
+  });
+}
+
+export const findAllMenus = (token) => {
+  return Axios.post(API_URL + "/findAll", null, {
+    headers: {
+      "x-auth-token": token
+    }
+  });
+}
+
 export const findAllByRole = (token, data) => {
   return Axios.post(API_URL + "/findAllByRole", data, {
     headers: {

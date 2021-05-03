@@ -1,3 +1,10 @@
+:root{
+  --lightGray : rgb(243, 243, 243);
+  --gray : rgb(179, 179, 179);
+}
+
+
+
 html, body {
   max-width: 100%;
   overflow-x: hidden;
@@ -185,4 +192,37 @@ tr {
 .edit-user-img{
   width: 50px!important;
   margin: 0!important;
+}
+
+.sort-menus-container{
+  border: 1px solid rgba(34,36,38,.15);
+  border-radius: 5px;
+  width: 100%;
+  margin: 10px auto;
+}
+
+.menu-item{
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px 15px;
+  align-items: center;
+  border-bottom: 1px solid rgba(34,36,38,.1);
+}
+
+.menu-item-header{
+  background-color: #f9fafb;
+  padding: 15px 15px;
+  font-weight: 800;
+}
+
+.menu-item-label{
+  flex: 2;
+}
+
+.menu-item-date{
+  flex: 2;
+}
+
+.menu-item-action{
+  flex: 3;
 }

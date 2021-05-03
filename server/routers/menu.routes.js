@@ -1,11 +1,13 @@
 const express = require('express');
-const { create, update, findAll, findAllByRole, findAllArtificial, setForm, getForm, findAllGuest, submitConfig, remove } = require('../controllers/menus.controller');
+const { create, update, findAll, findAllByRole, findAllArtificial, setForm, getForm, findAllGuest, submitConfig, remove, updateOrder } = require('../controllers/menus.controller');
 const {auth, admin} = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/create', auth, admin, create);
 
 router.post('/update', auth, admin, update);
+
+router.post('/updateOrder', auth, admin, updateOrder);
 
 router.post('/submitConfig', auth, admin, submitConfig);
 

@@ -104,33 +104,9 @@ module.exports.getForm = async (req, res) => {
     }
 }
 
-// module.exports.update = async (req, res) => {
-//     try{
-//         const {_id, label, email} = req.body;
-//         if(!email || !label)
-//             return res.status(400).json({msg: "Fields missing !"})
-//         const user = await User.findOne({_id: req.user});
-//         user.accounts.map(account => {
-//             var tempObj = Object.assign({}, account);
-//             var temp = tempObj._doc;
-//             if(temp._id == _id){
-//                 temp.label = label;
-//                 temp.email = email;
-//             }
-//             return temp;
-//         })
-//         user.markModified('accounts');
-//         await user.save();
-//         res.status(200).json(user.accounts);
-//     } catch(e){
-//         console.log('ERROR', e);
-//         res.status(500).send('Error uppdating the account')
-//     }
-// }
-
 module.exports.findAll = async (req, res) => {
     try {
-        const menuList = await Menu.find({ enabled: true });
+        const menuList = await Menu.find({ enabled: true }).sort('order').exec()
         res.status(200).json(menuList);
     } catch (e) {
         console.log('ERROR', e);
@@ -161,7 +137,7 @@ module.exports.findAllByRole = async (req, res) => {
         query.isArtificial = false;
     }
     try {
-        const menuList = await Menu.find(query);
+        const menuList = await Menu.find(query).sort('order');
         res.status(200).json(menuList);
     } catch (e) {
         console.log('ERROR', e);
@@ -200,5 +176,18 @@ module.exports.remove = async (req, res) => {
     } catch (e) {
         console.log('ERROR', e);
         res.status(500).json({ error: 'Error deleting the menu' })
+    }
+}
+
+module.exports.updateOrder = async (req, res) => {
+    try{
+        const {menus} = req.body;
+        for (const menu of menus) {
+            await Menu.update({_id: menu._id}, {order: menu.order});
+        }
+        res.status(200).json({ success: "Menus updated successfully" });
+    } catch(e){
+        console.log('ERROR', e);
+        res.status(500).send('Error uppdating the account')
     }
 }

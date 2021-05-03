@@ -44,7 +44,7 @@ const createMenus = async (adminRole, guestRole) => {
     const accounts = new Menu();
     accounts.label = 'Accounts';
     accounts.url = '/accounts';
-    accounts.symbole = 'users';
+    accounts.symbole = 'cog';
     accounts.roles = [adminRole._id, guestRole._id];
     accounts.isArtificial = false;
     accounts.hasContent = true;
@@ -58,6 +58,15 @@ const createMenus = async (adminRole, guestRole) => {
     menus.isArtificial = false;
     menus.hasContent = true;
     await menus.save();
+
+    const users = new Menu();
+    users.label = 'Users';
+    users.url = '/users';
+    users.symbole = 'users';
+    users.roles = [adminRole._id];
+    users.isArtificial = false;
+    users.hasContent = true;
+    await users.save();
 }
 
 const createCollections = async () => {
@@ -74,45 +83,45 @@ const createCollections = async () => {
 }
 
 
-const addUsersMenu = async () => {
-    const role = await Role.findOne({ label : 'ADMIN' });
-    const users = new Menu();
-    users.label = 'Users';
-    users.url = '/users';
-    users.symbole = 'users';
-    users.roles = [role._id];
-    users.isArtificial = false;
-    users.hasContent = true;
-    await users.save();
-}
-
-
-
-
-
-const changeMenuIcon = async () => {
-   const accounts = Menu.findOne({label: 'Accounts'})
-   accounts.symbole = 'cog';
-   await accounts.save();
-}
-
 
 const changeAppVersion = async (oldVersion, version) => {
     const appData = await AppConfig.findOne({version: oldVersion})
-    appData.version = version;
-    appData.save();
+    if(appData){
+        appData.version = version;
+        await appData.save();
+    }
 }
 
-const v1_0To1_1 = async () => {
-    await addUsersMenu();
-    await changeMenuIcon();
-    await changeAppVersion('1.0.0', '1.1.0');
+const v1_0_0To1_0_1 = async () => {
+    await changeAppVersion('1.0.0', '1.0.1');
 }
 
+const v1_1_0To1_2_0 = async () => {
+
+    const roles = await Role.find().select('_id').lean();
+
+    const chat = new Menu();
+    chat.label = 'chat';
+    chat.url = '/messenger';
+    chat.symbole = 'rocketchat';
+    chat.roles = [roles[0]._id, roles[1]._id];
+    chat.isArtificial = false;
+    chat.hasContent = true;
+    await chat.save();
+
+    const menus = await Menu.find();
+    menus.forEach( async (menu, i) => {
+        menu.order = i + 1;
+        await menu.save();
+    })
+    await changeAppVersion('1.1.0', '1.2.0');
+}
 
 const migration = async (data) => {
     if(data.version === '1.0.0'){
-        await v1_0To1_1();
+        await v1_0_0To1_0_1();
+    } else if(data.version === '1.1.0'){
+        await v1_1_0To1_2_0()
     }
 }
 

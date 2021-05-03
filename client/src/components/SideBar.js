@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/auth';
 import { findAllByRole } from '../services/menu.service';
 import config from '../config';
+import displayName from '../utils/displayName';
 
 const SideBar = ({ history, visible, closeSidebar, children }) => {
   const { user } = useContext(AuthContext);
@@ -13,12 +14,6 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
 
   const { menuList } = state;
 
-  const displayName = () => {
-    if (user.firstname && user.firstname != '' && user.lastname && user.lastname != '') {
-      return user.firstname + ' ' + user.lastname;
-    }
-    return user.username;
-  }
 
   useEffect(() => {
     user && findAllByRole(user.token, { role: user.role }).then(
@@ -49,7 +44,7 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
               <Menu.Item as={Link} to="/profile">
                 <Item.Image centered circular size='tiny' src={imgUrl + user.imagePath} />
                 <Item.Content verticalAlign='middle'>
-                  <Item.Header><strong>{displayName()}</strong></Item.Header>
+                  <Item.Header><strong>{displayName(user)}</strong></Item.Header>
                 </Item.Content>
               </Menu.Item>
               {

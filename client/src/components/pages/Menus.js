@@ -2,8 +2,9 @@ import React, { useContext, useState, useEffect } from 'react'
 import { IconPicker } from 'semantic-ui-react-icon-picker';
 import { Button, Table, Grid, Modal, Form, Dropdown } from 'semantic-ui-react'
 import { AuthContext } from '../../context/auth'
-import { findAllArtificial, createOrUpdate, findAllGuest, submitConfig, deleteOneMenu } from '../../services/menu.service'
+import { findAllArtificial, createOrUpdate, findAllGuest, submitConfig, deleteOneMenu, findAllMenus, updateOrder } from '../../services/menu.service'
 import { findAll } from '../../services/roles.service'
+import DragSortableList from 'react-drag-sortable'
 import { Toast } from '../../utils/toast';
 import Loading from '../Loading';
 import moment from 'moment';
@@ -26,6 +27,8 @@ const Menus = ({ history }) => {
         configModalOpen: false
     })
 
+    const [sortedMenus, setSortedMenus] = useState(null);
+
     const [userRoles, setUserRoles] = useState(null);
 
     const [guestMenus, setGuestMenus] = useState(null);
@@ -41,8 +44,8 @@ const Menus = ({ history }) => {
     };
 
     const methods = [
-        {key: "post" , value: "post" , text: "POST" },
-        {key: "get" , value: "get" , text: "GET" }
+        { key: "post", value: "post", text: "POST" },
+        { key: "get", value: "get", text: "GET" }
     ];
 
     const [menu, setMenu] = useState(initMenu)
@@ -67,6 +70,20 @@ const Menus = ({ history }) => {
         )
     }
 
+    const updateMenusOrder = (data) => {
+        user && updateOrder(user.token, {menus: data}).then(
+            (res) => {
+                Toast("SUCCESS", res.data.success);
+            },
+            error => {
+                console.log(error);
+                Toast("ERROR", "Error Updating menus");
+            }
+        )
+    }
+
+
+
     const getGuestMenus = () => {
         user && findAllGuest(user.token).then(
             (res) => {
@@ -84,7 +101,7 @@ const Menus = ({ history }) => {
     }
 
     const getMenus = () => {
-        user && findAllArtificial(user.token).then(
+        user && findAllMenus(user.token).then(
             (res) => {
                 setState({ ...state, menus: res.data })
             },
@@ -139,11 +156,11 @@ const Menus = ({ history }) => {
                 let menusList = menus;
                 menusList = menusList.filter(elem => elem._id != deleteMenu);
                 setModals({ ...modals, deleteModalOpen: false })
-                setState({...state, menus: menusList, deleteMenu: null})
+                setState({ ...state, menus: menusList, deleteMenu: null })
             },
             error => {
                 console.log(error);
-                setState({...state, deleteModalOpen: false, deleteMenu: null})
+                setState({ ...state, deleteModalOpen: false, deleteMenu: null })
                 Toast("ERROR", "Error deleting the Menu");
             }
         )
@@ -203,7 +220,7 @@ const Menus = ({ history }) => {
     }
 
     const openEditMenuConfigModal = (data) => {
-        if(!guestMenus){
+        if (!guestMenus) {
             getGuestMenus();
         }
         const redirectMenuValue = data.redirectMenu ? data.redirectMenu : null;
@@ -220,30 +237,30 @@ const Menus = ({ history }) => {
     }
 
     const editMenuConfig = () => {
-        submitConfig(user.token, {_id, submitConfigUrl, submitConfigMethod, redirectMenu })
-        .then(
-            res => {
-                let updateMenus = menus;
-                const index = menus.findIndex(elem => elem._id == _id)
-                updateMenus[index] = res.data;
-                setModals({ ...modals, configModalOpen: false })
-                setState({ ...state, loading: false, menus: updateMenus })
-                setMenu(initMenu)
-                Toast("SUCCESS", "Menu updated successfully");
-            },
-            error => {
-                console.log(error)
-                Toast("ERROR", "Error updating the menu");
-            }
-        )
+        submitConfig(user.token, { _id, submitConfigUrl, submitConfigMethod, redirectMenu })
+            .then(
+                res => {
+                    let updateMenus = menus;
+                    const index = menus.findIndex(elem => elem._id == _id)
+                    updateMenus[index] = res.data;
+                    setModals({ ...modals, configModalOpen: false })
+                    setState({ ...state, loading: false, menus: updateMenus })
+                    setMenu(initMenu)
+                    Toast("SUCCESS", "Menu updated successfully");
+                },
+                error => {
+                    console.log(error)
+                    Toast("ERROR", "Error updating the menu");
+                }
+            )
     }
 
     const onMethodChange = (e, data) => {
-        setMenu({...menu, submitConfigMethod: data.value})        
+        setMenu({ ...menu, submitConfigMethod: data.value })
     }
 
     const onRedirectMenuChange = (e, data) => {
-        setMenu({...menu, redirectMenu: data.value})
+        setMenu({ ...menu, redirectMenu: data.value })
     }
 
     const menuConfigForm = (
@@ -254,7 +271,7 @@ const Menus = ({ history }) => {
                 name="submitConfigUrl"
                 type="text"
                 value={submitConfigUrl}
-                onChange={e => setMenu({...menu, submitConfigUrl: e.target.value})}
+                onChange={e => setMenu({ ...menu, submitConfigUrl: e.target.value })}
             />
             <label>Method</label>
             <Dropdown
@@ -284,7 +301,7 @@ const Menus = ({ history }) => {
     const menuConfigModal = (
         <Grid.Column floated="right">
             <Modal
-                style={{overflow: 'visible'}}
+                style={{ overflow: 'visible' }}
                 closeOnEscape={true}
                 closeOnDimmerClick={true}
                 open={configModalOpen}
@@ -395,36 +412,59 @@ const Menus = ({ history }) => {
         return moment(date).format("DD/MM/YYYY HH:mm")
     }
 
+    const menuItem = (data) => (
+        <div className="menu-item" key={data._id}>
+            <div className="menu-item-label">{data.label}</div>
+            <div className="menu-item-date">{formatDate(data.createdAt)}</div>
+            <div className="menu-item-action">
+                <Button onClick={() => openEditMenuModal(data)} circular primary icon='edit' />
+                {
+                    data.isArtificial ? (
+                        <>
+                            <Button onClick={() => editMenuForm(data._id)} circular color='grey' icon='content' />
+                            <Button onClick={() => openEditMenuConfigModal(data)} circular color='grey' icon='cog' />
+                        </>
+                    ) : null
+                }
+                <Button onClick={() => openDeleteModal(data._id)} circular negative icon='trash' />
+            </div>
+        </div>
+    )
+
+    const menuHeader = (
+        <div className="menu-item menu-item-header no-drag">
+            <div className="menu-item-label">Label</div>
+            <div className="menu-item-date">Created at</div>
+            <div className="menu-item-action">Actions</div>
+        </div>
+    )
+
+    const draggableList = () => {
+        let result = [{ content: menuHeader }];
+        menus && menus.length > 0 &&
+            menus.map(data => result.push({ content: menuItem(data) }))
+        return result;
+    }
+
+    const onSort = (list) => {
+        let newList = []
+        list.forEach(elem => {
+            newList.push({_id: elem.content.key, order: elem.rank})
+        })
+        updateMenusOrder(newList)
+    }
+
     const dataTable = (
         <Grid.Row>
             {
                 menus && menus.length > 0 ? (
-                    <Table selectable>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell>Label</Table.HeaderCell>
-                                <Table.HeaderCell>Created at</Table.HeaderCell>
-                                <Table.HeaderCell>Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-
-                        <Table.Body>
-                            {
-                                menus.map((data, i) => (
-                                    <Table.Row key={data._id}>
-                                        <Table.Cell>{data.label}</Table.Cell>
-                                        <Table.Cell>{formatDate(data.createdAt)}</Table.Cell>
-                                        <Table.Cell>
-                                            <Button onClick={() => openEditMenuModal(data)} circular primary icon='edit' />
-                                            <Button onClick={() => editMenuForm(data._id)} circular color='grey' icon='content' />
-                                            <Button onClick={() => openEditMenuConfigModal(data)} circular color='grey' icon='cog' />
-                                            <Button onClick={() => openDeleteModal(data._id)} circular negative icon='trash' />
-                                        </Table.Cell>
-                                    </Table.Row>
-                                ))
-                            }
-                        </Table.Body>
-                    </Table>
+                    <>
+                        <div style={{ width: '100%' }}>
+                            <div className="sort-menus-container">
+                                <DragSortableList items={draggableList()} onSort={onSort} type="vertical" />
+                            </div>
+                        </div>
+                    </>
                 ) :
                     (
                         <NoData />

@@ -1,12 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { Icon, Label, Menu } from 'semantic-ui-react'
+import { Button, Icon, Label, Menu } from 'semantic-ui-react'
 import { AuthContext } from '../context/auth'
 import Emitter from '../services/events'
 import { interceptToken } from '../services/users.service'
 import EventsTypes from '../utils/EventsTypes'
 
-const Navbar = ({ history, toggleSidebar }) => {
+const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   const handleItemClick = (e, { name }) => setaAtiveItem(name)
 
   const { user, logout, login } = useContext(AuthContext);
@@ -35,6 +35,21 @@ const Navbar = ({ history, toggleSidebar }) => {
   const path = pathname === '/' ? 'home' : pathname.substring(1)
   const [activeItem, setaAtiveItem] = useState(path)
 
+  const langButton = (
+    <>
+    <Menu.Item
+      name='FR'
+      onClick={() => { changeLanguage('fr') }}
+      as={Button}
+    />
+    <Menu.Item
+      name='EN'
+      onClick={() => { changeLanguage('en') }}
+      as={Button}
+    />
+    </>
+  )
+
   const navbar = user ? (
     <Menu pointing secondary size="massive" color="teal">
       <Menu.Item onClick={toggleSidebar}>
@@ -50,11 +65,12 @@ const Navbar = ({ history, toggleSidebar }) => {
                   <Label color='teal' attached="bottom right" circular>
                     {requestsCount}
                   </Label>
-                ): null
+                ) : null
               }
             </Menu.Item>
           )
         }
+        {langButton}
         <Menu.Item
           name='logout'
           onClick={logoutUser}
@@ -62,32 +78,32 @@ const Navbar = ({ history, toggleSidebar }) => {
       </Menu.Menu>
     </Menu>
   ) : (
-      <Menu className="no-marg-menu" pointing secondary size="massive" color="teal">
+    <Menu className="no-marg-menu" pointing secondary size="massive" color="teal">
+      <Menu.Item
+        name='home'
+        active={activeItem === 'home'}
+        onClick={handleItemClick}
+        as={Link}
+        to="/"
+      />
+      <Menu.Menu position='right'>
         <Menu.Item
-          name='home'
-          active={activeItem === 'home'}
+          name='login'
+          active={activeItem === 'login'}
           onClick={handleItemClick}
           as={Link}
-          to="/"
+          to="/login"
         />
-        <Menu.Menu position='right'>
-          <Menu.Item
-            name='login'
-            active={activeItem === 'login'}
-            onClick={handleItemClick}
-            as={Link}
-            to="/login"
-          />
-          <Menu.Item
-            name='register'
-            active={activeItem === 'register'}
-            onClick={handleItemClick}
-            as={Link}
-            to="/register"
-          />
-        </Menu.Menu>
-      </Menu>
-    )
+        <Menu.Item
+          name='register'
+          active={activeItem === 'register'}
+          onClick={handleItemClick}
+          as={Link}
+          to="/register"
+        />
+      </Menu.Menu>
+    </Menu>
+  )
   return navbar
 }
 

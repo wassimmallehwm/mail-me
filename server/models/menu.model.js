@@ -47,6 +47,9 @@ const MenuSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'menu'
     },
+    order: {
+        type: Number
+    },
     enabled : {
         type: Boolean,
         default: true
