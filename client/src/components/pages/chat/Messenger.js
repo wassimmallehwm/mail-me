@@ -1,21 +1,20 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Button, FormInput, Icon, Input } from 'semantic-ui-react'
+import { Button, Form, Input } from 'semantic-ui-react'
 import { AuthContext } from '../../../context/auth'
 import { findConversations } from '../../../services/conversation.service'
 import { createMessage, findMessages } from '../../../services/message.service';
 import { Toast } from '../../../utils/toast';
 import socketEvents from '../../../utils/socketEvents';
-import ChatOnline from './chatOnline/ChatOnline'
 import Conversation from './conversations/Conversation'
 import Message from './message/Message'
-import { io } from 'socket.io-client';
 import './messenger.css'
-import config from '../../../config';
 import notifAudio from '../../../assets/notif.mp3';
 import Tooltip from '../../Tooltip';
+import { SocketContext } from '../../../context/socket';
 
 const Messenger = ({ location }) => {
     const { user } = useContext(AuthContext)
+    const socket = useContext(SocketContext)
 
     const scrollRef = useRef();
 
@@ -35,17 +34,7 @@ const Messenger = ({ location }) => {
     const [messagesPaginate, setMessagesPaginate] = useState(initPAgination);
     const [newMessage, setNewMessage] = useState("");
     const [arrivalMessage, setArrivalMessage] = useState(null);
-
-    const socket = useRef(io(
-        config.socketUrl, {
-        transports: ['websocket'],
-        secure: true,
-        reconnection: true,
-        rejectUnauthorized: false,
-        reconnectionDelay: 500,
-        reconnectionAttempts: 10
-    }
-    ))
+    const [scrollToBottom, setScrollToBottom] = useState(true);
 
     const findConvs = () => {
         user && findConversations(user.token, user._id).then(
@@ -89,10 +78,11 @@ const Messenger = ({ location }) => {
 
     useEffect(() => {
         findConvs()
-        socket.current.on(socketEvents.connect, () => {
-            socket.current.emit(socketEvents.addUser, user._id);
+        socket.connect()
+        socket.on(socketEvents.connect, () => {
+            socket.emit(socketEvents.addUser, user._id);
         })
-        socket.current.on(socketEvents.receiveMessage, ({ sender, text }) => {
+        socket.on(socketEvents.receiveMessage, ({ sender, text }) => {
             audio.play().then(
                 () => {
                 }, error => {
@@ -106,9 +96,9 @@ const Messenger = ({ location }) => {
             })
         })
         return () => {
-            socket.current.off(socketEvents.connect);
-            socket.current.off(socketEvents.receiveMessage);
-            socket.current.disconnect();
+            socket.off(socketEvents.connect);
+            socket.off(socketEvents.receiveMessage);
+            socket.disconnect();
         };
     }, [])
 
@@ -119,24 +109,24 @@ const Messenger = ({ location }) => {
     }, [arrivalMessage, currentChat])
 
     useEffect(() => {
-        socket.current.on(socketEvents.connectionError, (error) => {
+        socket.on(socketEvents.connectionError, (error) => {
             console.log("Connection error : ", error.message)
-            socket.current.connect();
+            socket.connect();
         });
-        socket.current.on(socketEvents.connectionFailed, (error) => {
+        socket.on(socketEvents.connectionFailed, (error) => {
             console.log("Connection failed : ", error.message)
-            socket.current.connect();
+            socket.connect();
         });
-        socket.current.emit(socketEvents.addUser, user._id);
-        socket.current.on(socketEvents.usersList, ({ users }) => {
+        socket.emit(socketEvents.addUser, user._id);
+        socket.on(socketEvents.usersList, ({ users }) => {
             setOnlineUsers(users.filter(elem => elem.user._id != user._id))
         })
 
         return () => {
-            socket.current.off(socketEvents.connectionError);
-            socket.current.off(socketEvents.connectionFailed);
-            socket.current.off(socketEvents.usersList);
-            socket.current.disconnect();
+            socket.off(socketEvents.connectionError);
+            socket.off(socketEvents.connectionFailed);
+            socket.off(socketEvents.usersList);
+            socket.disconnect();
         };
     }, [user, socket])
 
@@ -146,23 +136,29 @@ const Messenger = ({ location }) => {
     }, [currentChat])
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [arrivalMessage, currentChat])
+        if(scrollToBottom){
+            scrollRef.current?.scrollIntoView({ behavior: "smooth" })
+        } else {
+            setScrollToBottom(true)
+        }
+    }, [messages]) //arrivalMessage, currentChat
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const message = {
-            sender: user._id,
-            text: newMessage,
-            conversation: currentChat._id
+        if(newMessage.trim() != "") {
+            const message = {
+                sender: user._id,
+                text: newMessage,
+                conversation: currentChat._id
+            }
+            const receiverId = currentChat.members.find(member => member._id != user._id)._id
+            socket.emit(socketEvents.sendMessage, {
+                senderId: user._id,
+                receiverId,
+                text: newMessage,
+            })
+            createNewMeesage(message)
         }
-        const receiverId = currentChat.members.find(member => member._id != user._id)._id
-        socket.current.emit(socketEvents.sendMessage, {
-            senderId: user._id,
-            receiverId,
-            text: newMessage,
-        })
-        createNewMeesage(message)
     }
 
 
@@ -194,7 +190,10 @@ const Messenger = ({ location }) => {
                                                 (
                                                     <Tooltip content="Load more">
                                                         <Button icon="redo" className="load-more" onClick={
-                                                            () => { findCurrentChatMessages(messagesPaginate.page + 1, false) }
+                                                            () => { 
+                                                                setScrollToBottom(false);
+                                                                findCurrentChatMessages(messagesPaginate.page + 1, false) 
+                                                            }
                                                         } />
                                                     </Tooltip>
                                                 )
@@ -210,15 +209,17 @@ const Messenger = ({ location }) => {
                                             }
                                         </div>
                                         <div className="chatBoxBottom">
-                                            <Input
-                                                className="chatMessageInput"
-                                                placeholder="write something ..."
-                                                value={newMessage}
-                                                onChange={e => setNewMessage(e.target.value)}
-                                            />
-                                            <Button onClick={handleSubmit} className="chatSubmitBtn">
-                                                Send
-                                            </Button>
+                                            <Form style={{width: '95%', margin: 'auto'}} onSubmit={handleSubmit}>
+                                            <Form.Group inline>
+                                                <Form.Input
+                                                    className="chatMessageInput"
+                                                    placeholder="write something ..."
+                                                    value={newMessage}
+                                                    onChange={e => setNewMessage(e.target.value)}
+                                                />
+                                                <Form.Button content="Send" className="chatSubmitBtn"/>
+                                            </Form.Group>
+                                            </Form>
                                         </div>
                                     </>
                                 ) :
@@ -231,16 +232,6 @@ const Messenger = ({ location }) => {
 
                     </div>
                 </div>
-                {/* <div className="chatOnline">
-                    <div className="wrapper chatOnlineWrapper">
-                        {
-                            onlineUsers &&
-                            onlineUsers.map(online => (
-                                <ChatOnline user={online.user} key={online.socketId} />
-                            ))
-                        }
-                    </div>
-                </div> */}
             </div>
         </>
     )

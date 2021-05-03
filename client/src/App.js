@@ -12,6 +12,7 @@ import { withNamespaces } from 'react-i18next';
 import i18n from './utils/i18n';
 
 import Loading from './components/Loading';
+import { SocketProvider, socket } from './context/socket';
 const Messenger = lazy(() => import('./components/pages/chat/Messenger'));
 const Navbar = lazy(() => import('./components/Navbar'));
 const NotFound = lazy(() => import('./components/pages/NotFound'));
@@ -58,7 +59,9 @@ const App = () => {
           <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar}>
             <Switch>
               <Route exact path="/" component={Home} />
-              <ProtectedRoute exact path="/messenger" component={Messenger}/>
+              <SocketProvider>
+                <ProtectedRoute exact path="/messenger" component={Messenger}/>
+              </SocketProvider>
               <ProtectedRoute exact path="/mails" component={Mails} />
               <ProtectedRoute exact path="/accounts" component={Accounts} />
               <ProtectedRoute exact path="/menus" component={Menus} />

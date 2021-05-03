@@ -39,7 +39,6 @@ const ioConfig = (server) => {
             .then(data => {
                 data._id = data._id.toString();
                 newUser(data, socket.id)
-                console.log("USERS : ", users)
                 io.emit(usersList, {users})
             })
         })

@@ -54,14 +54,22 @@
 }
 
 .chatMessageInput{
-    width: calc(100% - 80px);
-    padding: 10px 0;
+    width: calc(100% - 80px)!important;
+    padding: 10px 0!important;
 }
 
-.chatMessageInput > input {
+.chatMessageInput > .input {
+    width: 98% !important;
+    border: none!important;
+    
+}
+
+.chatMessageInput > .input > input {
     border: none!important;
     border-bottom: 1px solid var(--gray)!important;
+    
 }
+
 
 .chatMessageInput:focus{
     outline: none;
