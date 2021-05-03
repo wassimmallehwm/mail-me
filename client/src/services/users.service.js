@@ -126,3 +126,13 @@ export const addOrUpdateUser = (token, mode, data) => {
         }
     });
 }
+
+export const searchUser = (token, query) => {
+    return Axios.get(API_URL + 'search?query=' + query, {
+        headers: {
+            "x-auth-token": token
+        }
+    });
+}
+
+

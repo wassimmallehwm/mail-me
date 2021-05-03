@@ -81,6 +81,7 @@ module.exports.register = async (req, res) => {
         res.status(500).json({ 'error': e })
     }
 }
+
 module.exports.add = async (req, res) => {
     try {
         const result = await saveUser(req, res);
@@ -256,5 +257,26 @@ module.exports.removeUser = async (req, res) => {
     } catch (e) {
         console.log('ERROR', e);
         res.status(500).json({ 'msg': e })
+    }
+}
+
+module.exports.search = async (req, res) => {
+    try {
+        const {query} = req.query
+        const filter = {
+            '_id': {$ne: req.user},
+            $or:[
+                {username:{$regex: query, $options: 'i'}},
+                {firstname:{$regex: query, $options: 'i'}},
+                {lastName:{$regex: query, $options: 'i'}}
+            ]
+        }
+        const users = await User.find(filter)
+        .select('username firstname lastname imagePath')
+        .exec();
+        res.status(200).json(users);
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(500).json({ 'error': e })
     }
 }

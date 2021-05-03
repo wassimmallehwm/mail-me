@@ -1,5 +1,5 @@
 .messenger {
-    height: calc(100vh - 100px);
+    height: calc(100vh - 60px);
     display: flex;
     flex-wrap: wrap;
 }
@@ -11,8 +11,20 @@
 
 /* Chat menu  */
 .chatMenu{
-    flex: 4;
-    max-width: 300px;
+    width: 250px;
+    background: var(--lightGray);
+    height: 95vh;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    transition-timing-function: ease;
+    transition-duration: 0.5s;
+}
+.chatMenu.invisible{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin-right: -250px;
 }
 .chatMenuInput{
     width: 90%;
@@ -23,14 +35,35 @@
     border: none!important;
     border-bottom: 1px solid var(--gray)!important;
 }
+
 .chatMenuInput:focus{
     outline: none;
+}
+
+.friends-btn{
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    z-index: 5;
+    border-radius: 0!important;
+    border-top-left-radius: 5px!important;
+    border-bottom-left-radius: 5px!important;
+    background-color: rgb(99, 197, 230)!important;
+    transition: all 0.5s ease!important;
+}
+
+.friends-btn.right{
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    margin-right: 250px!important;
+    transition: all 0.5s ease!important;
 }
 
 
 /* Chat box  */
 .chatBox{
-    flex: 8;
+    flex: 1;
     height: 100%;
 }
 
@@ -42,8 +75,13 @@
 
 .chatBoxTop{
     height: 100%;
+    margin-top: 20px;
     overflow-y: scroll;
     padding-right: 10px;
+}
+
+.chatBoxTop::-webkit-scrollbar{
+    width: 3px;
 }
 
 .chatBoxBottom{
@@ -92,6 +130,17 @@
     line-height: 3rem;
     top: 10%;
     font-size: 3rem;
+    color: var(--gray);
+    text-align: center;
+    cursor: default;
+}
+
+.empty-msg{
+    position: absolute;
+    line-height: 2rem;
+    bottom: 30%;
+    left: 40%;
+    font-size: 2rem;
     color: var(--gray);
     text-align: center;
     cursor: default;

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Button, Form, Input } from 'semantic-ui-react'
+import { Button, Form, Icon, Input } from 'semantic-ui-react'
 import { AuthContext } from '../../../context/auth'
-import { findConversations } from '../../../services/conversation.service'
+import { createAndFindConversation, createConversation, findConversations } from '../../../services/conversation.service'
 import { createMessage, findMessages } from '../../../services/message.service';
 import { Toast } from '../../../utils/toast';
 import socketEvents from '../../../utils/socketEvents';
@@ -11,6 +11,8 @@ import './messenger.css'
 import notifAudio from '../../../assets/notif.mp3';
 import Tooltip from '../../Tooltip';
 import { SocketContext } from '../../../context/socket';
+import { searchUser } from '../../../services/users.service';
+import UserItem from './userItem/UserItem';
 
 const Messenger = ({ location }) => {
     const { user } = useContext(AuthContext)
@@ -35,6 +37,9 @@ const Messenger = ({ location }) => {
     const [newMessage, setNewMessage] = useState("");
     const [arrivalMessage, setArrivalMessage] = useState(null);
     const [scrollToBottom, setScrollToBottom] = useState(true);
+    const [visibleFriendsList, setVisibleFriendsList] = useState(true);
+    const [usersSearchQuery, setUsersSearchQuery] = useState("");
+    const [usersList, setUsersList] = useState(null);
 
     const findConvs = () => {
         user && findConversations(user.token, user._id).then(
@@ -47,13 +52,52 @@ const Messenger = ({ location }) => {
         )
     }
 
+    const findUsers = (e) => {
+        setUsersSearchQuery(e.target.value)
+        if(e.target.value.trim() != ""){
+            searchUser(user.token, e.target.value).then(
+                res => {
+                    setUsersList(res.data)
+                },
+                error => {
+                    console.log(error)
+                    Toast('ERROR', 'Could not load users');
+                }
+            )
+        } else {
+            setUsersList(null)
+        }
+    }
+
+    const createChat = (data) => {
+        createAndFindConversation(user.token, {
+            senderId: user._id,
+            receiverId: data
+        }).then(
+            res => {
+                if(res.data.created){
+                    setConversations(prev => [...prev, res.data.conversation])
+                    setCurrentChat(res.data.conversation)
+                } else {
+                    setCurrentChat(res.data.conversation)
+                }
+                setUsersSearchQuery("")
+                setUsersList(null)
+            },
+            error => {
+                console.log(error)
+                Toast('ERROR', 'Could not load users');
+            }
+        )
+    }
+
     const findCurrentChatMessages = (page, newConversation) => {
         user && currentChat &&
             findMessages(user.token, currentChat._id, page).then(
                 res => {
                     newConversation ?
-                        setMessages(res.data.docs.reverse()) :
-                        setMessages(prev => res.data.docs.reverse().concat(prev))
+                        setMessages(res.data.docs.reverse()) 
+                        : setMessages(prev => res.data.docs.reverse().concat(prev))
                     const { limit, page, pages, total } = res.data;
                     setMessagesPaginate({ limit, page, pages, total })
                 },
@@ -165,19 +209,6 @@ const Messenger = ({ location }) => {
     return (
         <>
             <div className="messenger">
-                <div className="chatMenu">
-                    <div className="wrapper chatMenuWrapper">
-                        <Input placeholder="Search for friends" className="chatMenuInput" />
-                        {
-                            conversations.length > 0 &&
-                            conversations.map(conv =>
-                                <div onClick={() => { setCurrentChat(conv) }} key={conv._id}>
-                                    <Conversation conversation={conv} online={onlineUsers} currentUserId={user._id} />
-                                </div>
-                            )
-                        }
-                    </div>
-                </div>
                 <div className="chatBox">
                     <div className="wrapper chatBoxWrapper">
                         {
@@ -199,13 +230,18 @@ const Messenger = ({ location }) => {
                                                 )
                                             }
                                             {
-                                                messages.length > 0 &&
+                                                messages.length > 0 ?
                                                 messages.map((msg, i, array) => (
                                                     <div key={i} ref={scrollRef}>
                                                         <Message message={msg} nextMessage={array[i + 1]}
                                                             own={msg.sender._id == user._id} />
                                                     </div>
-                                                ))
+                                                )) :
+                                                (
+                                                    <span className="empty-msg">
+                                                        Say hello.
+                                                    </span>
+                                                )
                                             }
                                         </div>
                                         <div className="chatBoxBottom">
@@ -230,6 +266,40 @@ const Messenger = ({ location }) => {
                                 )
                         }
 
+                    </div>
+                </div>
+                    <Button size="medium" className={visibleFriendsList ? "friends-btn right" : "friends-btn"} 
+                    onClick={() => setVisibleFriendsList(prev => !prev)} >
+                    <Icon style={{margin: 'auto'}} name={visibleFriendsList ? 'arrow right' : 'arrow left'}/>
+                    </Button>
+
+                        {/* {!visibleFriendsList == true && (<Icon name='angle left'/>)}
+                        
+                        {visibleFriendsList && (<Icon name='angle right'/>)}
+                    </Button> */}
+                <div className={visibleFriendsList ? "chatMenu" : "chatMenu invisible"}  >
+                    <div className="wrapper chatMenuWrapper">
+                        <Input placeholder="Search for friends" 
+                        className="chatMenuInput" value={usersSearchQuery} onChange={findUsers}
+                        />
+                         
+                        {
+                            usersList ? 
+                                usersList.length > 0 ?
+                                    usersList.map(val =>
+                                        <div onClick={() => { createChat(val._id) }} key={val._id}>
+                                            <UserItem user={val} online={onlineUsers} />
+                                        </div>
+                                    ) : 
+                                (<h1>User not found</h1>) 
+                                :
+                            conversations.length > 0 &&
+                            conversations.map(conv =>
+                                <div onClick={() => { setCurrentChat(conv) }} key={conv._id}>
+                                    <Conversation conversation={conv} online={onlineUsers} currentUserId={user._id} />
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
             </div>

@@ -19,3 +19,11 @@ export const createConversation = (token, data) => {
         }
     });
 }
+
+export const createAndFindConversation = (token, data) => {
+    return Axios.post(API_URL + 'createAndFind', data, {
+        headers: {
+            "x-auth-token": token
+        }
+    });
+}

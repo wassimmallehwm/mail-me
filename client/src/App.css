@@ -58,6 +58,7 @@ html, body {
 }
 .ui.segment {
   border: none !important;
+  padding: 0!important;
 }
 .ui.segment.pushable {
   min-height: 85vh;

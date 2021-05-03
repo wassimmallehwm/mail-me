@@ -52,32 +52,33 @@ const App = () => {
   const history = useHistory();
   return (
     <AuthProvider>
-      <Router >
-        <Suspense fallback={(<Loading/>)}>
-          <Navbar history={history} toggleSidebar={toggleSidebar} changeLanguage={changeLanguage} />
-          <ToastContainer />
-          <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar}>
-            <Switch>
-              <Route exact path="/" component={Home} />
-              <SocketProvider>
-                <ProtectedRoute exact path="/messenger" component={Messenger}/>
-              </SocketProvider>
-              <ProtectedRoute exact path="/mails" component={Mails} />
-              <ProtectedRoute exact path="/accounts" component={Accounts} />
-              <ProtectedRoute exact path="/menus" component={Menus} />
-              <ProtectedRoute exact path="/users" component={Users} />
-              <ProtectedRoute exact path="/requests" component={RegisterRequests} />
-              <ProtectedRoute exact path="/mails/content" component={MailContent} />
-              <ProtectedRoute exact path="/profile" component={Profile} />
-              <ProtectedRoute exact path="/form-builder" component={FormCreator} />
-              <ProtectedRoute exact path="/form/:menuId" component={FormRender} />
-              <GuestRoute exact path="/register" component={Register} />
-              <GuestRoute exact path="/login" component={Login} />
-              <Route component={NotFound} />
-            </Switch>
-          </Layout>
-        </Suspense>
-      </Router>
+
+      <SocketProvider>
+        <Router >
+          <Suspense fallback={(<Loading />)}>
+            <Navbar history={history} toggleSidebar={toggleSidebar} changeLanguage={changeLanguage} />
+            <ToastContainer />
+            <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar}>
+              <Switch>
+                <Route exact path="/" component={Home} />
+                <ProtectedRoute exact path="/messenger" component={Messenger} />
+                <ProtectedRoute exact path="/mails" component={Mails} />
+                <ProtectedRoute exact path="/accounts" component={Accounts} />
+                <ProtectedRoute exact path="/menus" component={Menus} />
+                <ProtectedRoute exact path="/users" component={Users} />
+                <ProtectedRoute exact path="/requests" component={RegisterRequests} />
+                <ProtectedRoute exact path="/mails/content" component={MailContent} />
+                <ProtectedRoute exact path="/profile" component={Profile} />
+                <ProtectedRoute exact path="/form-builder" component={FormCreator} />
+                <ProtectedRoute exact path="/form/:menuId" component={FormRender} />
+                <GuestRoute exact path="/register" component={Register} />
+                <GuestRoute exact path="/login" component={Login} />
+                <Route component={NotFound} />
+              </Switch>
+            </Layout>
+          </Suspense>
+        </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }

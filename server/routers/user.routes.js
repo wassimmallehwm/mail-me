@@ -12,6 +12,7 @@ const {
   update,
   edit,
   add,
+  search,
 } = require("../controllers/user.controller");
 const { auth, admin, ownerOrAdmin } = require('../middleware/auth');
 const router = express.Router();
@@ -39,5 +40,9 @@ router.post('/remove/:id', auth, ownerOrAdmin, remove);
 router.post('/update', auth, update);
 
 router.post('/remove-user/:id', auth, admin, removeUser);
+
+router.get('/search', auth, search);
+
+
 
 module.exports = router;
