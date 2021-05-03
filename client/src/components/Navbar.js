@@ -1,16 +1,39 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { Button, Icon, Label, Menu } from 'semantic-ui-react'
+import { Button, Icon, Label, Menu, Image, Dropdown } from 'semantic-ui-react'
+import config from '../config'
 import { AuthContext } from '../context/auth'
 import Emitter from '../services/events'
 import { interceptToken } from '../services/users.service'
 import EventsTypes from '../utils/EventsTypes'
+import { currentLang } from '../utils/translate'
 
 const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   const handleItemClick = (e, { name }) => setaAtiveItem(name)
 
   const { user, logout, login } = useContext(AuthContext);
   const [requestsCount, setRequestsCount] = useState(null)
+  const [language, setLanguage] = useState(currentLang());
+  const handleClick = (e, { value }) => {
+    setLanguage(value);
+    changeLanguage(value)
+  };
+
+  const imgUrl = config.publicUrl + "images/users/";
+  const languages = [
+    {
+      label: 'English',
+      value: 'en',
+    },
+    {
+      label: 'Francais',
+      value: 'fr',
+    },
+    {
+      label: 'عربية',
+      value: 'ar',
+    }
+  ]
 
   const refreshTokenCallback = (data) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
@@ -26,6 +49,59 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
     logout();
   }
 
+  const langImage = () => (
+    <Image  
+      src={require(`../assets/${language}.svg`).default}
+      size="mini"
+    />
+  )
+
+  const profileImage = () => (
+    <Image  
+      src={imgUrl + user.imagePath}
+      avatar
+      size="mini"
+    />
+  )
+
+  const profileButton = (
+    <Dropdown className="lang-dropdown" icon={null} text={profileImage}>
+      <Dropdown.Menu>
+          <Dropdown.Item
+            as={Link}
+            to="/profile"
+            icon="user"
+            value={null}
+            text="Profile"
+          />
+          <Dropdown.Item
+            icon="sign-out"
+            value={null}
+            text="Logout"
+            onClick={logoutUser}
+          />
+      </Dropdown.Menu>
+    </Dropdown>
+  )
+
+
+  const langButton = (
+    <Dropdown className="lang-dropdown" icon={null} text={langImage} value={language}>
+      <Dropdown.Menu>
+        {languages.map(lang => (
+          <Dropdown.Item
+            className="lang-img-mini"
+            key={lang.value}
+            image={require(`../assets/${lang.value}.svg`).default}
+            value={lang.value}
+            text={lang.label}
+            onClick={handleClick}
+          />
+        ))}
+      </Dropdown.Menu>
+    </Dropdown>
+  )
+
   useEffect(() => {
     interceptToken(refreshTokenCallback, logout);
     Emitter.on(EventsTypes.REQUESTS_NUMBER, (requestsValue) => setRequestsCount(requestsValue));
@@ -34,21 +110,6 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   const pathname = window.location.pathname
   const path = pathname === '/' ? 'home' : pathname.substring(1)
   const [activeItem, setaAtiveItem] = useState(path)
-
-  const langButton = (
-    <>
-    <Menu.Item
-      name='FR'
-      onClick={() => { changeLanguage('fr') }}
-      as={Button}
-    />
-    <Menu.Item
-      name='EN'
-      onClick={() => { changeLanguage('en') }}
-      as={Button}
-    />
-    </>
-  )
 
   const navbar = user ? (
     <Menu pointing secondary size="massive" color="teal">
@@ -70,11 +131,16 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
             </Menu.Item>
           )
         }
+        <Menu.Item>
         {langButton}
-        <Menu.Item
+        </Menu.Item>
+        <Menu.Item>
+        {profileButton}
+        </Menu.Item>
+        {/* <Menu.Item
           name='logout'
           onClick={logoutUser}
-        />
+        /> */}
       </Menu.Menu>
     </Menu>
   ) : (

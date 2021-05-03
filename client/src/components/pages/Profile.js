@@ -10,7 +10,7 @@ import ChangePassword from '../ChangePassword';
 import ImageEditor from '../ImageEditor';
 import config from '../../config';
 import DeleteAccount from '../DeleteAccount';
-import trans from '../../utils/translate';
+import {trans} from '../../utils/translate';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext);
@@ -257,7 +257,7 @@ const Profile = () => {
             {imagePreviewModal}
             {profileImagePreviewModal}
             <input style={{ display: "none" }} type="file" name="file" ref={fileRef} onChange={fileChnage} />
-            <Grid.Row>
+            <Grid.Row style={{margin: '0 1.5rem'}}>
                 <Grid.Column width={4}>
                     {/* <Image style={{ cursor: "pointer" }} onClick={onImageClick} size="medium" centered circular src={imgUrl + user.imagePath} /> */}
                     <div style={{ textAlign: 'center' }}>

@@ -22,7 +22,11 @@ const Message = ({ message, own, nextMessage }) => {
     return (
         <div className={own ? 'message own' : 'message'}>
             <div className="messageTop">
-                <Image avatar className="messageImg" src={imgUrl + message.sender.imagePath} alt="Wassim Malleh" />
+                {
+                    own ? null :
+                    (<Image avatar className="messageImg" src={imgUrl + message.sender.imagePath} alt="Wassim Malleh" />)
+                }
+                
                 <p className="messageText"> {message.text} </p>
             </div>
             {

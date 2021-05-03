@@ -177,6 +177,7 @@ const Messenger = ({ location }) => {
     useEffect(() => {
         setMessagesPaginate(initPAgination)
         findCurrentChatMessages(1, true)
+        setVisibleFriendsList(false)
     }, [currentChat])
 
     useEffect(() => {
