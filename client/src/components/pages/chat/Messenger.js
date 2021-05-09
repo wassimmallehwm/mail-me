@@ -4,7 +4,7 @@ import { AuthContext } from '../../../context/auth'
 import { createAndFindConversation, createConversation, findConversations } from '../../../services/conversation.service'
 import { createMessage, findMessages } from '../../../services/message.service';
 import { Toast } from '../../../utils/toast';
-import {SocketEvents} from '../../../constants/EventConst'
+import { SocketEvents } from '../../../constants/EventConst'
 import Conversation from './conversations/Conversation'
 import Message from './message/Message'
 import './messenger.css'
@@ -13,6 +13,8 @@ import Tooltip from '../../tooltips/Tooltip';
 import { SocketContext } from '../../../context/socket';
 import { searchUser } from '../../../services/users.service';
 import UserItem from './userItem/UserItem';
+import 'emoji-mart/css/emoji-mart.css'
+import EmojiTooltip from '../../tooltips/EmojiTooltip';
 
 const Messenger = ({ location, history }) => {
     const { user } = useContext(AuthContext)
@@ -40,6 +42,7 @@ const Messenger = ({ location, history }) => {
     const [visibleFriendsList, setVisibleFriendsList] = useState(true);
     const [usersSearchQuery, setUsersSearchQuery] = useState("");
     const [usersList, setUsersList] = useState(null);
+    const [emojiTabOpen, setEmojiTabOpen] = useState(false);
 
     const findConvs = () => {
         user && findConversations(user.token, user._id).then(
@@ -54,7 +57,7 @@ const Messenger = ({ location, history }) => {
 
     const findUsers = (e) => {
         setUsersSearchQuery(e.target.value)
-        if(e.target.value.trim() != ""){
+        if (e.target.value.trim() != "") {
             searchUser(user.token, e.target.value).then(
                 res => {
                     setUsersList(res.data)
@@ -75,7 +78,7 @@ const Messenger = ({ location, history }) => {
             receiverId: data
         }).then(
             res => {
-                if(res.data.created){
+                if (res.data.created) {
                     setConversations(prev => [...prev, res.data.conversation])
                 }
                 setCurrentChat(res.data.conversation)
@@ -94,7 +97,7 @@ const Messenger = ({ location, history }) => {
             findMessages(user.token, currentChat._id, page).then(
                 res => {
                     newConversation ?
-                        setMessages(res.data.docs.reverse()) 
+                        setMessages(res.data.docs.reverse())
                         : setMessages(prev => res.data.docs.reverse().concat(prev))
                     const { limit, page, pages, total } = res.data;
                     setMessagesPaginate({ limit, page, pages, total })
@@ -191,7 +194,7 @@ const Messenger = ({ location, history }) => {
     }, [currentChat])
 
     useEffect(() => {
-        if(scrollToBottom){
+        if (scrollToBottom) {
             scrollRef.current?.scrollIntoView({ behavior: "smooth" })
         } else {
             setScrollToBottom(true)
@@ -200,7 +203,8 @@ const Messenger = ({ location, history }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if(newMessage.trim() != "") {
+        setEmojiTabOpen(false)
+        if (newMessage.trim() != "") {
             const message = {
                 sender: user._id,
                 text: newMessage,
@@ -226,13 +230,13 @@ const Messenger = ({ location, history }) => {
                             currentChat ?
                                 (
                                     <>
-                                        <div className="chatBoxTop">
+                                        <div onClick={() => setEmojiTabOpen(false)} className="chatBoxTop">
                                             {
                                                 messagesPaginate.page < messagesPaginate.pages &&
                                                 (
                                                     <Tooltip content="Load more">
                                                         <Button icon="redo" className="load-more" onClick={
-                                                            () => { 
+                                                            () => {
                                                                 setScrollToBottom(false);
                                                                 findCurrentChatMessages(messagesPaginate.page + 1, false)
                                                             }
@@ -242,30 +246,36 @@ const Messenger = ({ location, history }) => {
                                             }
                                             {
                                                 messages.length > 0 ?
-                                                messages.map((msg, i, array) => (
-                                                    <div key={i} ref={scrollRef}>
-                                                        <Message message={msg} nextMessage={array[i + 1]}
-                                                            own={msg.sender._id == user._id} redirect={visitProfile} /*receiver={currentChat.members.find(elem =>elem._id != user._id)}*/ />
-                                                    </div>
-                                                )) :
-                                                (
-                                                    <span className="empty-msg">
-                                                        Say hello.
-                                                    </span>
-                                                )
+                                                    messages.map((msg, i, array) => (
+                                                        <div key={i} ref={scrollRef}>
+                                                            <Message message={msg} nextMessage={array[i + 1]}
+                                                                own={msg.sender._id == user._id} redirect={visitProfile} /*receiver={currentChat.members.find(elem =>elem._id != user._id)}*/ />
+                                                        </div>
+                                                    )) :
+                                                    (
+                                                        <span className="empty-msg">
+                                                            Say hello.
+                                                        </span>
+                                                    )
                                             }
                                         </div>
                                         <div className="chatBoxBottom">
-                                            <Form style={{width: '95%', margin: 'auto'}} onSubmit={handleSubmit}>
-                                            <Form.Group inline>
-                                                <Form.Input
-                                                    className="chatMessageInput"
-                                                    placeholder="write something ..."
-                                                    value={newMessage}
-                                                    onChange={e => setNewMessage(e.target.value)}
-                                                />
-                                                <Form.Button content="Send" className="chatSubmitBtn"/>
-                                            </Form.Group>
+                                            <Form style={{ width: '95%', margin: 'auto' }} onSubmit={handleSubmit}>
+                                                <Form.Group inline>
+                                                    <Form.Input
+                                                        className="chatMessageInput"
+                                                        placeholder="write something ..."
+                                                        value={newMessage}
+                                                        onChange={e => setNewMessage(e.target.value)}
+                                                        onFocus={() => setEmojiTabOpen(false)}
+                                                        icon={
+                                                            <EmojiTooltip open={emojiTabOpen} onSelect={e => setNewMessage(prev => prev + e.native)}>
+                                                                <Icon onClick={() => setEmojiTabOpen(prev => !prev)} inverted circular link name="smile outline" />
+                                                            </EmojiTooltip>
+                                                        }
+                                                    />
+                                                    <Form.Button content="Send" className="chatSubmitBtn" />
+                                                </Form.Group>
                                             </Form>
                                         </div>
                                     </>
@@ -279,43 +289,43 @@ const Messenger = ({ location, history }) => {
 
                     </div>
                 </div>
-                    <Button size="medium" className={visibleFriendsList ? "friends-btn right" : "friends-btn"} 
+                <Button size="medium" className={visibleFriendsList ? "friends-btn right" : "friends-btn"}
                     onClick={() => setVisibleFriendsList(prev => !prev)} >
-                    <Icon style={{margin: 'auto'}} name={visibleFriendsList ? 'arrow right' : 'arrow left'}/>
-                    </Button>
+                    <Icon style={{ margin: 'auto' }} name={visibleFriendsList ? 'arrow right' : 'arrow left'} />
+                </Button>
 
-                        {/* {!visibleFriendsList == true && (<Icon name='angle left'/>)}
+                {/* {!visibleFriendsList == true && (<Icon name='angle left'/>)}
                         
                         {visibleFriendsList && (<Icon name='angle right'/>)}
                     </Button> */}
                 <div className={visibleFriendsList ? "chatMenu" : "chatMenu invisible"}  >
                     <div className="wrapper chatMenuWrapper">
-                        <Input icon='search' placeholder="Search ..." 
-                        className="chatMenuInput" value={usersSearchQuery} onChange={findUsers}
+                        <Input icon='search' placeholder="Search ..."
+                            className="chatMenuInput" value={usersSearchQuery} onChange={findUsers}
                         />
-                         
+
                         {
-                            usersList ? 
+                            usersList ?
                                 usersList.length > 0 ?
                                     usersList.map(val =>
-                                        <div onClick={() => { 
+                                        <div onClick={() => {
                                             createChat(val._id)
-                                            setVisibleFriendsList(false) 
-                                            }} key={val._id}>
+                                            setVisibleFriendsList(false)
+                                        }} key={val._id}>
                                             <UserItem user={val} online={onlineUsers} />
                                         </div>
-                                    ) : 
-                                (<h1>User not found</h1>) 
+                                    ) :
+                                    (<h1>User not found</h1>)
                                 :
-                            conversations.length > 0 &&
-                            conversations.map(conv =>
-                                <div onClick={() => { 
-                                    setCurrentChat(conv) 
-                                    setVisibleFriendsList(false) 
+                                conversations.length > 0 &&
+                                conversations.map(conv =>
+                                    <div onClick={() => {
+                                        setCurrentChat(conv)
+                                        setVisibleFriendsList(false)
                                     }} key={conv._id}>
-                                    <Conversation conversation={conv} online={onlineUsers} currentUserId={user._id} />
-                                </div>
-                            )
+                                        <Conversation conversation={conv} online={onlineUsers} currentUserId={user._id} />
+                                    </div>
+                                )
                         }
                     </div>
                 </div>
