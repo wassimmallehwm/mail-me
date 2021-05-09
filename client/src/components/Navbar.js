@@ -3,16 +3,20 @@ import { Link, withRouter } from 'react-router-dom'
 import { Button, Icon, Label, Menu, Image, Dropdown } from 'semantic-ui-react'
 import config from '../config'
 import { AuthContext } from '../context/auth'
+import { SocketContext } from '../context/socket'
 import Emitter from '../services/events'
+import { count } from '../services/register-request.service'
 import { interceptToken } from '../services/users.service'
-import EventsTypes from '../utils/EventsTypes'
+import {SocketEvents} from '../constants/EventConst'
+import {ClientEvents} from '../constants/EventConst'
 import { currentLang } from '../utils/translate'
 
 const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   const handleItemClick = (e, { name }) => setaAtiveItem(name)
 
   const { user, logout, login } = useContext(AuthContext);
-  const [requestsCount, setRequestsCount] = useState(null)
+  const socket = useContext(SocketContext)
+  const [requestsCount, setRequestsCount] = useState(0)
   const [language, setLanguage] = useState(currentLang());
   const handleClick = (e, { value }) => {
     setLanguage(value);
@@ -44,20 +48,32 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   }
 
   const logoutUser = () => {
+    socket.disconnect();
     history.push('/')
     handleItemClick(null, { name: 'home' });
     logout();
   }
 
+  const getUserRequestsCount = () => {
+    user && user.isAdmin && count(user.token).then(
+        (res) => {
+            setRequestsCount(res.data)
+        },
+        error => {
+            console.log(error);
+        }
+    )
+}
+
   const langImage = () => (
-    <Image  
+    <Image
       src={require(`../assets/${language}.svg`).default}
       size="mini"
     />
   )
 
   const profileImage = () => (
-    <Image  
+    <Image
       src={imgUrl + user.imagePath}
       avatar
       size="mini"
@@ -65,21 +81,21 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   )
 
   const profileButton = (
-    <Dropdown className="lang-dropdown" icon={null} text={profileImage}>
+    <Dropdown className="profile-dropdown" icon={null} text={profileImage}>
       <Dropdown.Menu>
-          <Dropdown.Item
-            as={Link}
-            to="/profile"
-            icon="user"
-            value={null}
-            text="Profile"
-          />
-          <Dropdown.Item
-            icon="sign-out"
-            value={null}
-            text="Logout"
-            onClick={logoutUser}
-          />
+        <Dropdown.Item
+          as={Link}
+          to="/profile"
+          icon="user"
+          value={null}
+          text="Profile"
+        />
+        <Dropdown.Item
+          icon="sign-out"
+          value={null}
+          text="Logout"
+          onClick={logoutUser}
+        />
       </Dropdown.Menu>
     </Dropdown>
   )
@@ -104,8 +120,35 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
 
   useEffect(() => {
     interceptToken(refreshTokenCallback, logout);
-    Emitter.on(EventsTypes.REQUESTS_NUMBER, (requestsValue) => setRequestsCount(requestsValue));
+    Emitter.on(ClientEvents.requestsNumber, (requestsValue) => setRequestsCount(requestsValue));
   }, [])
+
+  useEffect(() => {
+    getUserRequestsCount()
+    if (user) {
+      //console.log("SOCKET : ", socket.connected)
+      !socket.connected && socket.connect()
+      //socket.emit(SocketEvents.addUser, user._id);
+      socket.on(SocketEvents.connect, () => {
+        socket.emit(SocketEvents.addUser, user._id);
+      })
+      socket.on(SocketEvents.requestCreated, () => {
+        setRequestsCount(prev => prev + 1)
+      })
+      socket.on(SocketEvents.requestDeleted, () => {
+        setRequestsCount(prev => {
+          if(prev > 0){
+            return prev - 1
+          }
+        })
+      }) 
+    }
+    return () => {
+      //socket.off(SocketEvents.connect)
+      socket.off(SocketEvents.requestCreated)
+      socket.off(SocketEvents.requestDeleted)
+    };
+  }, [user])
 
   const pathname = window.location.pathname
   const path = pathname === '/' ? 'home' : pathname.substring(1)
@@ -132,10 +175,10 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
           )
         }
         <Menu.Item>
-        {langButton}
+          {langButton}
         </Menu.Item>
         <Menu.Item>
-        {profileButton}
+          {profileButton}
         </Menu.Item>
         {/* <Menu.Item
           name='logout'

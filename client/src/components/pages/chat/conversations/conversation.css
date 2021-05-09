@@ -3,10 +3,11 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    border-bottom: 0.5px solid var(--gray);
 }
 
 .conversation:hover{
-    background-color: var(--lightGray);
+    background-color: var(--gray)!important;
 }
 .conversationImg{
     width: 40px!important;

@@ -3,6 +3,7 @@ import { Button, Table, Grid, Modal, Form } from 'semantic-ui-react'
 import { AuthContext } from '../../context/auth'
 import { createOrUpdateAccount, accountsList, deleteUserAccount } from '../../services/api'
 import { Toast } from '../../utils/toast';
+import DeleteModal from '../DeleteModal';
 import Loading from '../Loading';
 
 const Accounts = () => {
@@ -26,7 +27,7 @@ const Accounts = () => {
     useEffect(() => {
         user && accountsList(user.token).then(
             (res) => {
-                setState({...state, accounts: res.data })
+                setState({ ...state, accounts: res.data })
             },
             error => {
                 console.log(error);
@@ -38,77 +39,62 @@ const Accounts = () => {
     const onChangeAccount = (e) => {
         const acc = Account
         acc[e.target.name] = e.target.value;
-        setState({...state, Account: acc})
+        setState({ ...state, Account: acc })
     }
 
     const createOrUpdate = () => {
-        setState({...state, loading: true})
+        setState({ ...state, loading: true })
         createOrUpdateAccount(user.token, mode, Account).then(
             (res) => {
-                const acc = {label: '', email: ''}
-                setState({...state, loading: false, addEditModalOpen: false, accounts: res.data, Account: acc})
+                const acc = { label: '', email: '' }
+                setState({ ...state, loading: false, addEditModalOpen: false, accounts: res.data, Account: acc })
             },
             error => {
                 console.log(error);
-                setState({...state, loading: false})
+                setState({ ...state, loading: false })
                 Toast("ERROR", "Error creating the account");
             }
         )
     }
 
     const openDeleteModal = (data) => {
-        setState({...state, deleteModalOpen: true, deleteAccount: data});
+        setState({ ...state, deleteModalOpen: true, deleteAccount: data });
     }
 
     const closeDeleteModal = (data) => {
-        setState({...state, deleteModalOpen: false, deleteAccount: null});
+        setState({ ...state, deleteModalOpen: false, deleteAccount: null });
     }
 
     const removeAccount = () => {
-        deleteUserAccount(user.token, {id: deleteAccount}).then(
+        deleteUserAccount(user.token, { id: deleteAccount }).then(
             (res) => {
-                setState({...state, deleteModalOpen: false, accounts: res.data, deleteAccount: null})
+                setState({ ...state, deleteModalOpen: false, accounts: res.data, deleteAccount: null })
             },
             error => {
                 console.log(error);
-                setState({...state, deleteModalOpen: false, deleteAccount: null})
+                setState({ ...state, deleteModalOpen: false, deleteAccount: null })
                 Toast("ERROR", "Error deleting the account");
             }
         )
     }
 
     const deleteAccountModal = (
-        <Modal
-            closeOnEscape={true}
-            closeOnDimmerClick={true}
-            open={deleteModalOpen}
-            dimmer="blurring"
-            size="tiny"
-            onOpen={() => setState({ ...state, deleteModalOpen: true })}
-            onClose={closeDeleteModal}
-        >
-            <Modal.Header>Confirmation</Modal.Header>
-            <Modal.Content>
-                <h3>Are you sure you want to delete the account ?</h3>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button onClick={closeDeleteModal} basic>
-                    Cancel
-        </Button>
-                <Button onClick={removeAccount} negative>
-                    Delete
-        </Button>
-            </Modal.Actions>
-        </Modal>
-    );
+        <DeleteModal
+            title="Are you sure you want to delete this account ?"
+            deleteModalOpen={deleteModalOpen}
+            //openDeleteModal={openDeleteModal}
+            closeDeleteModal={closeDeleteModal}
+            submit={removeAccount}
+        />
+    )
 
 
     const openEditAccountModal = (data) => {
-        setState({...state, Account: data, mode: "edit", modalTitle: "Edit Account", addEditModalOpen: true})
+        setState({ ...state, Account: data, mode: "edit", modalTitle: "Edit Account", addEditModalOpen: true })
     }
 
     const onModalClose = (e, data) => {
-        const acc = {label: '', email: ''}
+        const acc = { label: '', email: '' }
         setState({ ...state, Account: acc, mode: "add", modalTitle: "Add Account", addEditModalOpen: false });
     }
 
@@ -144,7 +130,6 @@ const Accounts = () => {
                 size="tiny"
                 onOpen={() => setState({ ...state, addEditModalOpen: true })}
                 onClose={onModalClose}
-                trigger={<Button primary icon='plus' floated="right" />}
             >
                 <Modal.Header>{modalTitle}</Modal.Header>
                 <Modal.Content>
@@ -165,9 +150,12 @@ const Accounts = () => {
 
     const dataTable = (
         <Grid.Row>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                <Button onClick={() => setState({ ...state, addEditModalOpen: true })} primary icon='plus' floated="right" />
+            </div>
             {
                 accounts && accounts.length > 0 ? (
-                    <Table selectable>
+                    <Table style={{border: 'none'}} selectable>
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell>Label</Table.HeaderCell>
@@ -183,20 +171,20 @@ const Accounts = () => {
                                         <Table.Cell>{data.label}</Table.Cell>
                                         <Table.Cell> {data.email} </Table.Cell>
                                         <Table.Cell>
-                                            <Button circular onClick={() => openEditAccountModal(data)} primary icon='edit'/> 
-                                            <Button circular onClick={() => openDeleteModal(data._id)} negative icon='trash'/> 
+                                            <Button circular onClick={() => openEditAccountModal(data)} primary icon='edit' />
+                                            <Button circular onClick={() => openDeleteModal(data._id)} negative icon='trash' />
                                         </Table.Cell>
                                     </Table.Row>
                                 ))
                             }
                         </Table.Body>
                     </Table>
-                ) : 
-                (
-                    <h3>Create an account</h3>
-                )
+                ) :
+                    (
+                        <h3>Create an account</h3>
+                    )
             }
-            
+
         </Grid.Row>
     )
 
@@ -204,7 +192,7 @@ const Accounts = () => {
         <Grid columns={1} className="main-grid">
             {addAccountModal}
             {deleteAccountModal}
-            {accounts ? dataTable : (<Loading/>)}
+            {accounts ? dataTable : (<Loading />)}
         </Grid>
     )
 }

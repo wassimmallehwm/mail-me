@@ -1,4 +1,11 @@
 {
+    "home" : "Accueil",
+    "users" : "Utilisateurs",
+    "menus" : "Menus",
+    "mails" : "E-Mails",
+    "chat" : "Chat",
+    "settings" : "Paramètres",
+    "accounts" : "Comptes",
     "details" : "Détailles",
     "changePassword" : "Changer le mot de passe",
     "deleteAccount" : "Effacer le compte",

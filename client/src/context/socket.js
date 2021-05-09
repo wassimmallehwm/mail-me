@@ -6,11 +6,13 @@ export const socket = io(
     config.socketUrl, {
     transports: ['websocket'],
     secure: true,
+    autoConnect: true,
     reconnection: true,
     rejectUnauthorized: false,
-    reconnectionDelay: 500,
-    reconnectionAttempts: 10
+    reconnectionDelay: 0,
+    reconnectionAttempts: 10,
 })
+
 
 export const SocketContext = React.createContext();
 

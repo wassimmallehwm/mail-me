@@ -30,7 +30,7 @@ const Register = ({ history }) => {
             },
             error => {
                 console.log(error)
-                Toast("ERROR", "Error while registring");
+                Toast("ERROR", error.response.data.msg);
             }
         )
     }

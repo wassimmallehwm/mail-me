@@ -1,4 +1,11 @@
 {
+    "home" : "Home",
+    "users" : "Users",
+    "menus" : "Menus",
+    "mails" : "Mails",
+    "chat" : "Chat",
+    "settings" : "Settings",
+    "accounts" : "Accounts",
     "details" : "Details",
     "changePassword" : "Change Password",
     "deleteAccount" : "Delete Account",

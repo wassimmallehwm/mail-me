@@ -24,3 +24,16 @@ module.exports.mailBody = (url) => {
         "<a style='background-color: #B3F983;text-decoration: none;color: white;height: 100%;line-height: 45px;'" +
         " target='_blank' href='http://localhost:4200/validate/'>Activate your account</a></div></div>";
 }
+
+
+module.exports.confirmation = (username) => {
+    return "<div style='padding: 3rem; height: 90%;width: 90%;background-color: rgb(243, 243, 243); text-align: center;'>" +
+        "<div style='height: 200px; align-items: center;'>" +
+        "<img style='width: 200px;' src='" + process.env.PUBLIC_URL + "logo.png' />" +
+        "</div>" +
+        "<h2 style='color:black'> Hello Mr " + username + "</h2><br>" +
+        "<p style='font-size: 16px; color:black'> Your registration has been validated </p>" +
+        "<div style='height: 50px;background-color: #005368;width: 250px;font-size: 20px;text-align: center;margin: auto;border-radius: 5px;'>" +
+        "<a style='background-color: #005368;text-decoration: none;color: white;height: 100%;line-height: 45px;'" +
+        " target='_blank' href='" + process.env.CLIENT_URL + "login/'>Login to your account</a></div></div>";
+}

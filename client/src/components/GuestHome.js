@@ -1,36 +1,44 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import { Container, Header, Segment } from 'semantic-ui-react'
+import { findSettings } from '../services/settings.service';
 import Background from '../wall.png';
+import Loading from './Loading';
 const GuestHome = () => {
-  return (
-    <Segment
-      inverted
-      textAlign='center'
-      style={{
-        minHeight: 750,
-        padding: '1em 0em',
-        backgroundImage: "url(" + Background + ")",
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain'
-      }}
-      vertical
-    >
-      <Container>
-        <Header
-          as='h4'
-          content='UNDER DESIGN'
-          inverted
-          color='blue'
-          style={{
-            fontSize: '4em',
-            fontWeight: 'normal',
-            marginTop: '4em',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)'
-          }}
-        />
-      </Container>
-    </Segment>
-  )
+
+  const [settings, setSettings] = useState({
+    guestUrl: ""
+  });
+  const [loading, setLoading] = useState(true);
+
+  const {guestUrl} = settings;
+
+  useEffect(() => {
+    findSettings().then(
+      res => {
+        setSettings(res.data)
+        setLoading(false)
+      }, 
+      error => {
+        console.log(error)
+        setLoading(false)
+      }
+    )
+  }, [])
+
+  
+  return loading ? 
+    (<Loading/>):
+    (
+      <div style={{
+        height: 'calc(100vh - 52px)',
+        width: '100vw'
+      }}>          
+      <iframe src={guestUrl} style={{
+        height: '100%',
+        width: '100%'
+      }}/>         
+    </div>
+    )
 }
 
 export default GuestHome

@@ -5,6 +5,7 @@ import { AuthContext } from '../context/auth';
 import { findAllByRole } from '../services/menu.service';
 import config from '../config';
 import displayName from '../utils/displayName';
+import { trans } from '../utils/translate';
 
 const SideBar = ({ history, visible, closeSidebar, children }) => {
   const { user } = useContext(AuthContext);
@@ -41,7 +42,7 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
               width='wide'
             >
 
-              <Menu.Item as={Link} to="/profile">
+              <Menu.Item onClick={closeSidebar} as={Link} to="/profile">
                 <Item.Image centered circular size='tiny' src={imgUrl + user.imagePath} />
                 <Item.Content verticalAlign='middle'>
                   <Item.Header><strong>{displayName(user)}</strong></Item.Header>
@@ -50,13 +51,13 @@ const SideBar = ({ history, visible, closeSidebar, children }) => {
               {
                 menuList &&
                 menuList.map(menu => (
-                  <Menu.Item key={menu._id} as={Link} to={menu.isArtificial ? `/form/${menu._id}` : menu.url}>
+                  <Menu.Item onClick={closeSidebar} key={menu._id} as={Link} to={menu.isArtificial ? `/form/${menu._id}` : menu.url}>
                     {
                     menu.symboleType == 'ICON' 
                     ? (<Icon style={{position: 'absolut', left: '1em'}} size="mini" name={menu.symbole} />)
                     : (<Image size="mini" avatar  src={imgUrl + menu.symbole} />)
                   }
-                    <span>{menu.label}</span>
+                    <span>{ trans(menu.label.toLowerCase()) }</span>
                   </Menu.Item>
                 ))
               }

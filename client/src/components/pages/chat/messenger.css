@@ -77,7 +77,7 @@
     height: 100%;
     margin-top: 20px;
     overflow-y: scroll;
-    padding-right: 10px;
+    padding-right: 30px;
 }
 
 .chatBoxTop::-webkit-scrollbar{

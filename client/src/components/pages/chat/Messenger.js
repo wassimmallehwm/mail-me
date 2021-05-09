@@ -4,17 +4,17 @@ import { AuthContext } from '../../../context/auth'
 import { createAndFindConversation, createConversation, findConversations } from '../../../services/conversation.service'
 import { createMessage, findMessages } from '../../../services/message.service';
 import { Toast } from '../../../utils/toast';
-import socketEvents from '../../../utils/socketEvents';
+import {SocketEvents} from '../../../constants/EventConst'
 import Conversation from './conversations/Conversation'
 import Message from './message/Message'
 import './messenger.css'
 import notifAudio from '../../../assets/notif.mp3';
-import Tooltip from '../../Tooltip';
+import Tooltip from '../../tooltips/Tooltip';
 import { SocketContext } from '../../../context/socket';
 import { searchUser } from '../../../services/users.service';
 import UserItem from './userItem/UserItem';
 
-const Messenger = ({ location }) => {
+const Messenger = ({ location, history }) => {
     const { user } = useContext(AuthContext)
     const socket = useContext(SocketContext)
 
@@ -77,10 +77,8 @@ const Messenger = ({ location }) => {
             res => {
                 if(res.data.created){
                     setConversations(prev => [...prev, res.data.conversation])
-                    setCurrentChat(res.data.conversation)
-                } else {
-                    setCurrentChat(res.data.conversation)
                 }
+                setCurrentChat(res.data.conversation)
                 setUsersSearchQuery("")
                 setUsersList(null)
             },
@@ -120,13 +118,17 @@ const Messenger = ({ location }) => {
             )
     }
 
+    const visitProfile = (url) => {
+        history.push(url)
+    }
+
     useEffect(() => {
         findConvs()
-        socket.connect()
-        socket.on(socketEvents.connect, () => {
-            socket.emit(socketEvents.addUser, user._id);
-        })
-        socket.on(socketEvents.receiveMessage, ({ sender, text }) => {
+        //!socket.connected && socket.connect()
+        // socket.on(SocketEvents.connect, () => {
+        //     socket.emit(SocketEvents.addUser, user._id);
+        // })
+        socket.on(SocketEvents.receiveMessage, ({ sender, text }) => {
             audio.play().then(
                 () => {
                 }, error => {
@@ -138,11 +140,21 @@ const Messenger = ({ location }) => {
                 text,
                 createdAt: Date.now()
             })
+            //console.log(currentChat)
+            // socket.emit(SocketEvents.readMessage, currentChat)
         })
+
+        // socket.on(SocketEvents.readMessage, (msg) => {
+        //     setMessages(prev => prev.map(elem => {
+        //         if(elem._id === msg._id){
+        //             elem.seen = msg.seen
+        //         }
+        //     }))
+        // })
         return () => {
-            socket.off(socketEvents.connect);
-            socket.off(socketEvents.receiveMessage);
-            socket.disconnect();
+            socket.off(SocketEvents.connect);
+            socket.off(SocketEvents.receiveMessage);
+            //socket.off(SocketEvents.readMessage);
         };
     }, [])
 
@@ -153,31 +165,29 @@ const Messenger = ({ location }) => {
     }, [arrivalMessage, currentChat])
 
     useEffect(() => {
-        socket.on(socketEvents.connectionError, (error) => {
+        socket.on(SocketEvents.connectionError, (error) => {
             console.log("Connection error : ", error.message)
             socket.connect();
         });
-        socket.on(socketEvents.connectionFailed, (error) => {
+        socket.on(SocketEvents.connectionFailed, (error) => {
             console.log("Connection failed : ", error.message)
             socket.connect();
         });
-        socket.emit(socketEvents.addUser, user._id);
-        socket.on(socketEvents.usersList, ({ users }) => {
+        socket.emit(SocketEvents.addUser, user._id);
+        socket.on(SocketEvents.usersList, ({ users }) => {
             setOnlineUsers(users.filter(elem => elem.user._id != user._id))
         })
 
         return () => {
-            socket.off(socketEvents.connectionError);
-            socket.off(socketEvents.connectionFailed);
-            socket.off(socketEvents.usersList);
-            socket.disconnect();
+            socket.off(SocketEvents.connectionError);
+            socket.off(SocketEvents.connectionFailed);
+            socket.off(SocketEvents.usersList);
         };
     }, [user, socket])
 
     useEffect(() => {
         setMessagesPaginate(initPAgination)
         findCurrentChatMessages(1, true)
-        setVisibleFriendsList(false)
     }, [currentChat])
 
     useEffect(() => {
@@ -197,7 +207,7 @@ const Messenger = ({ location }) => {
                 conversation: currentChat._id
             }
             const receiverId = currentChat.members.find(member => member._id != user._id)._id
-            socket.emit(socketEvents.sendMessage, {
+            socket.emit(SocketEvents.sendMessage, {
                 senderId: user._id,
                 receiverId,
                 text: newMessage,
@@ -224,7 +234,7 @@ const Messenger = ({ location }) => {
                                                         <Button icon="redo" className="load-more" onClick={
                                                             () => { 
                                                                 setScrollToBottom(false);
-                                                                findCurrentChatMessages(messagesPaginate.page + 1, false) 
+                                                                findCurrentChatMessages(messagesPaginate.page + 1, false)
                                                             }
                                                         } />
                                                     </Tooltip>
@@ -235,7 +245,7 @@ const Messenger = ({ location }) => {
                                                 messages.map((msg, i, array) => (
                                                     <div key={i} ref={scrollRef}>
                                                         <Message message={msg} nextMessage={array[i + 1]}
-                                                            own={msg.sender._id == user._id} />
+                                                            own={msg.sender._id == user._id} redirect={visitProfile} /*receiver={currentChat.members.find(elem =>elem._id != user._id)}*/ />
                                                     </div>
                                                 )) :
                                                 (
@@ -280,7 +290,7 @@ const Messenger = ({ location }) => {
                     </Button> */}
                 <div className={visibleFriendsList ? "chatMenu" : "chatMenu invisible"}  >
                     <div className="wrapper chatMenuWrapper">
-                        <Input placeholder="Search for friends" 
+                        <Input icon='search' placeholder="Search ..." 
                         className="chatMenuInput" value={usersSearchQuery} onChange={findUsers}
                         />
                          
@@ -288,7 +298,10 @@ const Messenger = ({ location }) => {
                             usersList ? 
                                 usersList.length > 0 ?
                                     usersList.map(val =>
-                                        <div onClick={() => { createChat(val._id) }} key={val._id}>
+                                        <div onClick={() => { 
+                                            createChat(val._id)
+                                            setVisibleFriendsList(false) 
+                                            }} key={val._id}>
                                             <UserItem user={val} online={onlineUsers} />
                                         </div>
                                     ) : 
@@ -296,7 +309,10 @@ const Messenger = ({ location }) => {
                                 :
                             conversations.length > 0 &&
                             conversations.map(conv =>
-                                <div onClick={() => { setCurrentChat(conv) }} key={conv._id}>
+                                <div onClick={() => { 
+                                    setCurrentChat(conv) 
+                                    setVisibleFriendsList(false) 
+                                    }} key={conv._id}>
                                     <Conversation conversation={conv} online={onlineUsers} currentUserId={user._id} />
                                 </div>
                             )

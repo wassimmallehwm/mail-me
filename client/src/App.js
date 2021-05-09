@@ -13,6 +13,7 @@ import i18n from './utils/i18n';
 
 import Loading from './components/Loading';
 import { SocketProvider, socket } from './context/socket';
+const Settings = lazy(() => import('./components/pages/settings/Settings'));
 const Messenger = lazy(() => import('./components/pages/chat/Messenger'));
 const Navbar = lazy(() => import('./components/Navbar'));
 const NotFound = lazy(() => import('./components/pages/NotFound'));
@@ -23,7 +24,7 @@ const Register = lazy(() => import('./components/pages/Register'));
 const Layout = lazy(() => import('./components/Layout'));
 const Mails = lazy(() => import('./components/pages/Mails'));
 const MailContent = lazy(() => import('./components/pages/MailContent'));
-const Profile = lazy(() => import('./components/pages/Profile'));
+const Profile = lazy(() => import('./components/pages/profile/Profile'));
 const Menus = lazy(() => import('./components/pages/Menus'));
 const Users = lazy(() => import('./components/pages/Users'));
 const RegisterRequests = lazy(() => import('./components/pages/RegisterRequests'));
@@ -63,7 +64,7 @@ const App = () => {
                 <Route exact path="/" component={Home} />
                 <ProtectedRoute exact path="/messenger" component={Messenger} />
                 <ProtectedRoute exact path="/mails" component={Mails} />
-                <ProtectedRoute exact path="/accounts" component={Accounts} />
+                <ProtectedRoute exact path="/settings" component={Settings} />
                 <ProtectedRoute exact path="/menus" component={Menus} />
                 <ProtectedRoute exact path="/users" component={Users} />
                 <ProtectedRoute exact path="/requests" component={RegisterRequests} />

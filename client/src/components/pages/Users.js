@@ -7,6 +7,7 @@ import Loading from '../Loading';
 import moment from 'moment';
 import NoData from '../NoData';
 import config from '../../config';
+import DeleteModal from '../DeleteModal';
 
 const Users = () => {
     const { user } = useContext(AuthContext)
@@ -79,6 +80,7 @@ const Users = () => {
         user && removeUser(user.token, deleteUser).then(
             (res) => {
                 removeItem(deleteUser)
+                closeDeleteModal()
                 Toast("SUCCESS", "User deleted successfully");
             },
             error => {
@@ -145,7 +147,7 @@ const Users = () => {
         setDeleteUserModal(true);
     }
 
-    const closeDeleteModal = (data) => {
+    const closeDeleteModal = () => {
         setDeleteUser(null)
         setDeleteUserModal(false);
     }
@@ -254,29 +256,15 @@ const Users = () => {
     );
 
     const deleteModal = (
-        <Modal
-            closeOnEscape={true}
-            closeOnDimmerClick={true}
-            open={deleteUserModal}
-            dimmer="blurring"
-            size="tiny"
-            onOpen={() => setDeleteUserModal(true)}
-            onClose={closeDeleteModal}
-        >
-            <Modal.Header>Confirmation</Modal.Header>
-            <Modal.Content>
-                <h3>Are you sure you want to delete the User ?</h3>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button onClick={closeDeleteModal} basic>
-                    Cancel
-        </Button>
-                <Button onClick={removeUserAccount} negative>
-                    Delete
-        </Button>
-            </Modal.Actions>
-        </Modal>
+        <DeleteModal
+            title="Are you sure you want to delete this account ?"
+            deleteModalOpen={deleteUserModal}
+            closeDeleteModal={closeDeleteModal}
+            submit={removeUserAccount}
+        />
     );
+
+    
 
     const dataTable = (
         <Grid.Row>

@@ -56,6 +56,7 @@ export const uploadUserImage = (token, data) => {
 }
 
 export const updateUser = (token, data) => {
+    console.log(data)
     return Axios.post(API_URL + "update", data, {
         headers: {
             "x-auth-token": token
@@ -129,6 +130,30 @@ export const addOrUpdateUser = (token, mode, data) => {
 
 export const searchUser = (token, query) => {
     return Axios.get(API_URL + 'search?query=' + query, {
+        headers: {
+            "x-auth-token": token
+        }
+    });
+}
+
+export const userPhotos = (token, id) => {
+    return Axios.get(API_URL + 'photos/' + id, {
+        headers: {
+            "x-auth-token": token
+        }
+    });
+}
+
+export const chnagePicture = (token, image) => {
+    return Axios.post(API_URL + 'photos/change', image, {
+        headers: {
+            "x-auth-token": token
+        }
+    });
+}
+
+export const removePicture = (token, image) => {
+    return Axios.post(API_URL + 'photos/remove', image, {
         headers: {
             "x-auth-token": token
         }

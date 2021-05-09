@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Conversation = require('../models/conversation.model');
 const Message = require('../models/message.model');
 
 module.exports.create = async (req, res) => {
@@ -31,6 +32,10 @@ module.exports.findByConv = async (req, res) => {
     //     console.log('ERROR', e);
     //     res.status(500).send({error: err.message})
     // }
+
+    // const conv = await Conversation.findById(req.params.conversation)
+
+    // await Message.updateOne({seen: undefined, sender: conv.members.find(mem => mem != req.user)}, {seen: new Date()})
 
     const { page = 1 } = req.query;
     const options = {

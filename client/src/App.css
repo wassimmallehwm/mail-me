@@ -1,6 +1,7 @@
 :root{
   --lightGray : rgb(243, 243, 243);
   --gray : rgb(179, 179, 179);
+  --blue : rgb(100, 200, 230);
 }
 
 
@@ -226,4 +227,35 @@ tr {
 
 .menu-item-action{
   flex: 3;
+}
+
+.lang-dropdown{
+  margin: auto!important;
+}
+
+.lang-dropdown > .menu{
+  left: auto!important;
+  right: 0!important;
+}
+
+.lang-dropdown > img{
+  max-width: 3.5em!important;
+}
+
+.ui.dropdown > .menu{
+  right: 0!important;
+}
+
+.lang-img-mini > img {
+  height: auto;
+  font-size: .78571429rem;
+}
+.profile-dropdown > .menu{
+  left: auto!important;
+  right: 0!important;
+}
+
+.profile-dropdown > img {
+  height: auto;
+  font-size: .78571429rem;
 }

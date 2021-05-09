@@ -3,6 +3,7 @@ const Role = require('../models/role.model');
 const Menu = require('../models/menu.model');
 const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
+const { v1_2_0To1_3_0 } = require('../migrations/1_2_0To1_3_0');
 
 const createAppConfig = async () => {
     const appconfig = new AppConfig();
@@ -114,7 +115,7 @@ const v1_1_0To1_2_0 = async () => {
         menu.order = i + 1;
         await menu.save();
     })
-    await changeAppVersion('1.1.0', '1.2.0');
+    await changeAppVersion('1.0.1', '1.2.0');
 }
 
 const migration = async (data) => {
@@ -122,6 +123,8 @@ const migration = async (data) => {
         await v1_0_0To1_0_1();
     } else if(data.version === '1.1.0'){
         await v1_1_0To1_2_0()
+    } else if(data.version === '1.2.0') {
+        await v1_2_0To1_3_0(changeAppVersion)
     }
 }
 
@@ -131,6 +134,7 @@ const dbSeeder = async () => {
             if (res && res.length > 0) {
                 console.log('App already initialized !')
                 await migration(res[0]);
+                await v1_2_0To1_3_0(changeAppVersion)
                 return;
             } else {
                 console.log('Initializing App ...')

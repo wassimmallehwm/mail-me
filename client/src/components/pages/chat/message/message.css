@@ -12,17 +12,28 @@
     width: 40px!important;
     height: 40px!important;
     margin-right: 1rem!important;
+    cursor: pointer!important;
+}
+
+.seenImg{
+    width: 15px!important;
+    height: 15px!important;
+    margin: 0 -20px 0 5px!important;
 }
 .messageText{
     padding: 10px;
     border-radius: 10px;
-    background-color: rgb(99, 197, 230);
+    background-color: var(--blue);
     color: white;
     max-width: 300px;
 }
 .messageBottom{
     font-size: 12px;
     margin-top: 0.5rem;
+}
+
+.messageBottomTiny{
+    font-size: 10px;
 }
 
 .message.own{

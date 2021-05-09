@@ -6,7 +6,7 @@ import { login } from '../../services/users.service';
 import { Toast } from '../../utils/toast';
 import { count } from '../../services/register-request.service';
 import Emitter from '../../services/events';
-import EventsTypes from '../../utils/EventsTypes';
+import {ClientEvents} from '../../constants/EventConst'
 
 const Login = ({ history }) => {
     const context = useContext(AuthContext)
@@ -21,7 +21,7 @@ const Login = ({ history }) => {
     const getUserRequestsCount = (user) => {
         user.isAdmin && count(user.token).then(
             (res) => {
-                Emitter.emit(EventsTypes.REQUESTS_NUMBER, res.data);
+                Emitter.emit(ClientEvents.requestsNumber, res.data);
             },
             error => {
                 console.log(error);
@@ -75,7 +75,7 @@ const Login = ({ history }) => {
                         />
                         <Button type="submit" primary>
                             Login
-                </Button>
+                        </Button>
                     </Form>
                     {
                         Object.keys(errors).length > 0 &&

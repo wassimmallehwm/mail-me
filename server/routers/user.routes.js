@@ -9,10 +9,13 @@ const {
   changePassword,
   remove,
   removeUser,
-  update,
+  updateUser,
   edit,
   add,
   search,
+  photos,
+  changePic,
+  removePic
 } = require("../controllers/user.controller");
 const { auth, admin, ownerOrAdmin } = require('../middleware/auth');
 const router = express.Router();
@@ -33,15 +36,21 @@ router.post('/edit', auth, admin, edit);
 
 router.post('/add', auth, admin, add);
 
-router.post('/:id', auth, findOne);
+router.post('/update', auth, updateUser);
 
 router.post('/remove/:id', auth, ownerOrAdmin, remove);
-
-router.post('/update', auth, update);
 
 router.post('/remove-user/:id', auth, admin, removeUser);
 
 router.get('/search', auth, search);
+
+router.get('/photos/:id', auth, photos);
+
+router.post('/photos/change', auth, changePic);
+
+router.post('/photos/remove', auth, removePic);
+
+router.post('/:id', auth, findOne);
 
 
 

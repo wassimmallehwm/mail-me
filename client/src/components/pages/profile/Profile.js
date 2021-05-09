@@ -1,16 +1,18 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
-import { AuthContext } from '../../context/auth';
-import Loading from '../Loading';
-import { Toast } from '../../utils/toast';
+import { AuthContext } from '../../../context/auth';
+import Loading from '../../Loading';
+import { Toast } from '../../../utils/toast';
 import Compress from 'compress.js';
-import { Button, Image, Grid, Modal, Loader, Segment, Dimmer, Tab } from 'semantic-ui-react';
-import { uploadUserImage, updateUser } from '../../services/users.service';
-import UserDetails from '../UserDetails';
-import ChangePassword from '../ChangePassword';
-import ImageEditor from '../ImageEditor';
-import config from '../../config';
-import DeleteAccount from '../DeleteAccount';
-import {trans} from '../../utils/translate';
+import { Button, Image, Grid, Modal, Loader, Segment, Dimmer, Tab, Card, Icon } from 'semantic-ui-react';
+import { uploadUserImage, updateUser, userPhotos, chnagePicture, removePicture } from '../../../services/users.service';
+import UserDetails from '../../UserDetails';
+import ChangePassword from '../../ChangePassword';
+import ImageEditor from '../../ImageEditor';
+import config from '../../../config';
+import DeleteAccount from '../../DeleteAccount';
+import { trans } from '../../../utils/translate';
+import Accounts from '../Accounts';
+import './profile.css'
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext);
@@ -28,6 +30,9 @@ const Profile = () => {
         active: false
     })
 
+    const [userImages, setUserImages] = useState([])
+    const [selectedUserImage, setSelectedUserImage] = useState("")
+
     const imgUrl = config.publicUrl + "images/users/";
 
     const compress = new Compress()
@@ -42,8 +47,8 @@ const Profile = () => {
 
     const panes = [
         { menuItem: trans('details'), render: () => null },
-        { menuItem: trans('changePassword'), render: () => null },
-        { menuItem: trans('deleteAccount'), render: () => null },
+        { menuItem: trans('accounts'), render: () => null },
+        { menuItem: trans('settings'), render: () => null },
     ]
 
     const fileRef = useRef();
@@ -192,6 +197,31 @@ const Profile = () => {
         setState({ ...state, tabIndex: data.activeIndex })
     }
 
+    const settingsComponent = (
+        <div>
+            <Grid.Column style={{ margin: '2rem auto' }}>
+                <Card fluid >
+                    <Card.Header>
+                        <h2 style={{ margin: '10px auto', textAlign: 'center' }}>Change password</h2>
+                    </Card.Header>
+                    <Card.Content>
+                        <ChangePassword user={user} />
+                    </Card.Content>
+                </Card>
+            </Grid.Column>
+            <Grid.Column style={{ margin: '2rem auto' }}>
+                <Card fluid >
+                    <Card.Header>
+                        <h2 style={{ margin: '10px auto', textAlign: 'center' }}>Delete account</h2>
+                    </Card.Header>
+                    <Card.Content>
+                        <DeleteAccount />
+                    </Card.Content>
+                </Card>
+            </Grid.Column>
+        </div>
+    )
+
     const pageContent = () => {
         switch (tabIndex) {
             case 0:
@@ -201,9 +231,9 @@ const Profile = () => {
                     updateUserDetails={updateUserDetails}
                 />);
             case 1:
-                return (<ChangePassword user={user} />);
+                return (<Accounts />);
             case 2:
-                return (<DeleteAccount />);
+                return settingsComponent;
             default:
                 return (<UserDetails
                     userDetails={userDetails}
@@ -213,11 +243,85 @@ const Profile = () => {
         }
     }
 
+    const getUserPhotos = () => {
+        userPhotos(user.token, user._id).then(
+            res => {
+                if(res.data.images.length > 0){
+                    setUserImages(res.data.images)
+                    setSelectedUserImage(res.data.images[0])
+                } else {
+                    setSelectedUserImage(user.imagePath)
+                }
+            },
+            error => {
+                Toast("ERROR", "Error loading user images");
+            }
+        )
+    }
+
+    const goToNext = () => {
+        const imgIndex = userImages.indexOf(selectedUserImage);
+        const diff = userImages.length - imgIndex;
+        if (diff == 1) {
+            setSelectedUserImage(userImages[0])
+        }
+        if (diff > 1) {
+            setSelectedUserImage(userImages[imgIndex + 1])
+        }
+    }
+
+    const goToPrev = () => {
+        const imgIndex = userImages.indexOf(selectedUserImage);
+        if (imgIndex != 0) {
+            setSelectedUserImage(userImages[imgIndex - 1])
+        }
+        if (imgIndex == 0) {
+            setSelectedUserImage(userImages[userImages.length - 1])
+        }
+    }
+
+    const changeProfilePic = () => {
+        if(selectedUserImage != user.imagePath){
+            chnagePicture(user.token, {image: selectedUserImage}).then(
+                res => {
+                    closeImageProfile()
+                    user.imagePath = res.data
+                    login(user);
+                    setSelectedUserImage(user.imagePath)
+                    Toast("SUCCESS", "User image chnaged successfully");
+                },
+                error => {
+                    Toast("ERROR", "Error changing user image");
+                }
+            )
+        }
+        
+    }
+
+    const deleteProfilePic = () => {
+        removePicture(user.token, {image: selectedUserImage}).then(
+            res => {
+                closeImageProfile()
+                Toast("SUCCESS", "User image deleted successfully");
+                if(res.data != user.imagePath){
+                    user.imagePath = res.data
+                    login(user);
+                }
+                setSelectedUserImage(user.imagePath)
+            },
+            error => {
+                Toast("ERROR", "Error deleting user image");
+            }
+        )
+    }
+
     const openImageProfile = () => {
+        getUserPhotos()
         setState({ ...state, profileImageModalOpen: true });
     }
 
     const closeImageProfile = () => {
+        setSelectedUserImage(user.imagePath)
         setState({ ...state, profileImageModalOpen: false });
     }
 
@@ -232,7 +336,21 @@ const Profile = () => {
             onClose={closeImageProfile}
             id="modal-no-padding"
         >
-            <Image id="image-no-padding" size="large" centered src={imgUrl + user.imagePath} />
+            <Button onClick={goToPrev} className="prev-btn">
+                <Icon name="angle left" size='big' />
+            </Button>
+            <Button onClick={goToNext} className="next-btn">
+                <Icon name="angle right" size='big' />
+            </Button>
+            <div className="profile-img-btns">
+                <Button disabled={selectedUserImage == user.imagePath} onClick={changeProfilePic} className="profile-img-btn">
+                    Profile
+                </Button>
+                <Button onClick={deleteProfilePic} className="delete-img-btn">
+                    Delete
+                </Button>
+            </div>
+            <Image id="image-no-padding" size="large" centered src={imgUrl + selectedUserImage} />
         </Modal>
     );
 
@@ -257,7 +375,7 @@ const Profile = () => {
             {imagePreviewModal}
             {profileImagePreviewModal}
             <input style={{ display: "none" }} type="file" name="file" ref={fileRef} onChange={fileChnage} />
-            <Grid.Row style={{margin: '0 1.5rem'}}>
+            <Grid.Row style={{ margin: '1rem 1.5rem' }}>
                 <Grid.Column width={4}>
                     {/* <Image style={{ cursor: "pointer" }} onClick={onImageClick} size="medium" centered circular src={imgUrl + user.imagePath} /> */}
                     <div style={{ textAlign: 'center' }}>

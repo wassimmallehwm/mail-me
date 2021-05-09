@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const upload = require('../utils/imageUpload');
 const RegisterRequest = require('../models/register.request.model');
+const fs = require('fs');
+const socketEvents = require('../utils/socketEvents');
 
 function generateToken(id) {
     return token = jwt.sign({
@@ -14,34 +16,39 @@ function generateToken(id) {
 }
 
 const saveUser = async (req, res) => {
-    const { email, password, passwordCheck, username, firstname, lastname, enabled } = req.body;
-    if (!email || !password || !passwordCheck)
-        return res.status(400).json({ msg: "Fields missing !" })
-    if (password != passwordCheck)
-        return res.status(400).json({ msg: "Password and Password Check do not match!" })
-    const existinguser = await User.findOne({ email: email });
-    if (existinguser)
-        return res.status(400).json({ msg: "An account with this email already exists !" })
-    if (!username)
-        username = email
+    try {
+        const { email, password, passwordCheck, username, firstname, lastname, enabled } = req.body;
+        if (!email || !password || !passwordCheck)
+            throw new Error('Fields missing !')
+        if (password != passwordCheck)
+            throw new Error('Password and confirm password do not match !')
+        const existinguser = await User.findOne({ email: email });
+        if (existinguser)
+            throw new Error('An account with this email already exists !')
+        if (!username)
+            username = email
 
-    const salt = await bcrypt.genSalt()
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const user = new User();
-    user.email = email;
-    user.password = hashedPassword;
-    user.username = username;
-    user.accounts = [{ label: "Default", email }];
-    const role = await Role.findOne({ label: 'GUEST' });
-    user.role = role._id;
-    if (firstname)
-        user.firstname = firstname;
-    if (lastname)
-        user.lastname = lastname;
-    if (enabled)
-        user.enabled = enabled;
-    const result = await user.save();
-    return result;
+        const salt = await bcrypt.genSalt()
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const user = new User();
+        user.email = email;
+        user.password = hashedPassword;
+        user.username = username;
+        user.accounts = [{ label: "Default", email }];
+        const role = await Role.findOne({ label: 'GUEST' });
+        user.role = role._id;
+        if (firstname)
+            user.firstname = firstname;
+        if (lastname)
+            user.lastname = lastname;
+        if (enabled)
+            user.enabled = enabled;
+        const result = await user.save();
+        return result;
+    } catch (e) {
+        console.log('ERROR', e.message);
+        res.status(400).json({ msg: e.message })
+    }
 }
 
 function userResponse(data) {
@@ -72,10 +79,16 @@ function userResponse(data) {
 module.exports.register = async (req, res) => {
     try {
         const result = await saveUser(req, res);
-        const userRequest = new RegisterRequest();
-        userRequest.user = result._id;
-        await userRequest.save();
-        res.status(201).json(true);
+        if (result) {
+            console.log("RESULT : ", result)
+            const userRequest = new RegisterRequest();
+            userRequest.user = result._id;
+            const reqResult = await userRequest.save();
+            if (reqResult) {
+                req.io.to("ADMIN").emit(socketEvents.requestCreated)
+                res.status(201).json(true);
+            }
+        }
     } catch (e) {
         console.log('ERROR', e);
         res.status(500).json({ 'error': e })
@@ -146,6 +159,7 @@ module.exports.uploadImage = async (req, res) => {
             }
             const user = await User.findOne({ _id: req.user });
             user.imagePath = req.file.filename;
+            user.images.unshift(req.file.filename)
             await user.save();
             return res.status(200).send(req.file)
 
@@ -155,9 +169,55 @@ module.exports.uploadImage = async (req, res) => {
     }
 }
 
-module.exports.update = async (req, res) => {
+module.exports.photos = async (req, res) => {
     try {
-        let user = await User.findOne({ _id: req.user });
+        const user = await User.findById(req.params.id).select('images');
+        res.status(200).json(user);
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(500).json({ 'error': e })
+    }
+}
+
+module.exports.changePic = async (req, res) => {
+    try {
+        const {image} = req.body
+        const user = await User.findById(req.user);
+        let imgs = user.images.filter(img => img != image)
+        imgs.unshift(image)
+        user.images = imgs
+        user.imagePath = image
+        await user.save();
+        res.status(200).json(image);
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(500).json({ 'error': e })
+    }
+}
+
+module.exports.removePic = async (req, res) => {
+    try {
+        const {image} = req.body
+        const user = await User.findById(req.user);
+        user.images = user.images.filter(img => img != image)
+        if(user.imagePath == image)
+            user.imagePath = "user_default";
+            
+        await user.save();
+        const filePath = 'public/images/users/' + image;
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        res.status(200).json(user.imagePath);
+    } catch (e) {
+        console.log('ERROR', e);
+        res.status(500).json({ 'error': e })
+    }
+}
+
+module.exports.updateUser = async (req, res) => {
+    try {
+        let user = await User.findById(req.user);
         if (!user) {
             res.status(404).send('User no found !')
         } else {
@@ -169,8 +229,7 @@ module.exports.update = async (req, res) => {
             res.status(200).json(response);
         }
     } catch (e) {
-        console.log('ERROR', e);
-        res.status(400).send('Error adding a User')
+        res.status(400).json({ error: 'Error adding a User' })
     }
 }
 
@@ -183,7 +242,7 @@ module.exports.edit = async (req, res) => {
         } else {
             user = await User.findOneAndUpdate({ _id: userDetails._id }, userDetails, { new: true })
             const response = await User.findById(user._id).select('_id username createdAt')
-            .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
+                .populate({ path: 'role', model: 'Role', select: 'label' }).exec();
             res.status(200).json(response);
         }
     } catch (e) {
@@ -253,6 +312,12 @@ module.exports.remove = async (req, res) => {
 module.exports.removeUser = async (req, res) => {
     try {
         await User.deleteOne({ _id: req.params.id });
+        const request = await RegisterRequest.findOne({ user: req.params.id });
+        if (request) {
+            request.delete();
+            req.io.to("ADMIN").emit(socketEvents.requestDeleted)
+        }
+
         res.status(200).json(true);
     } catch (e) {
         console.log('ERROR', e);
@@ -262,18 +327,18 @@ module.exports.removeUser = async (req, res) => {
 
 module.exports.search = async (req, res) => {
     try {
-        const {query} = req.query
+        const { query } = req.query
         const filter = {
-            '_id': {$ne: req.user},
-            $or:[
-                {username:{$regex: query, $options: 'i'}},
-                {firstname:{$regex: query, $options: 'i'}},
-                {lastName:{$regex: query, $options: 'i'}}
+            '_id': { $ne: req.user },
+            $or: [
+                { username: { $regex: query, $options: 'i' } },
+                { firstname: { $regex: query, $options: 'i' } },
+                { lastName: { $regex: query, $options: 'i' } }
             ]
         }
         const users = await User.find(filter)
-        .select('username firstname lastname imagePath')
-        .exec();
+            .select('username firstname lastname imagePath')
+            .exec();
         res.status(200).json(users);
     } catch (e) {
         console.log('ERROR', e);

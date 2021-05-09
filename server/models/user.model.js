@@ -28,6 +28,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'user_default'
     },
+    images : {
+        type: [String],
+        default: []
+    },
     mails: [
         {
             body: String,

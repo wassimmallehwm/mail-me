@@ -9,6 +9,7 @@ import { Toast } from '../../utils/toast';
 import Loading from '../Loading';
 import moment from 'moment';
 import NoData from '../NoData';
+import DeleteModal from '../DeleteModal';
 
 const Menus = ({ history }) => {
     const { user } = useContext(AuthContext)
@@ -71,7 +72,7 @@ const Menus = ({ history }) => {
     }
 
     const updateMenusOrder = (data) => {
-        user && updateOrder(user.token, {menus: data}).then(
+        user && updateOrder(user.token, { menus: data }).then(
             (res) => {
                 Toast("SUCCESS", res.data.success);
             },
@@ -157,6 +158,7 @@ const Menus = ({ history }) => {
                 menusList = menusList.filter(elem => elem._id != deleteMenu);
                 setModals({ ...modals, deleteModalOpen: false })
                 setState({ ...state, menus: menusList, deleteMenu: null })
+                Toast("SUCCESS", "Menu deleted successfully");
             },
             error => {
                 console.log(error);
@@ -167,28 +169,12 @@ const Menus = ({ history }) => {
     }
 
     const deleteMenuModal = (
-        <Modal
-            closeOnEscape={true}
-            closeOnDimmerClick={true}
-            open={deleteModalOpen}
-            dimmer="blurring"
-            size="tiny"
-            onOpen={() => setModals({ ...state, deleteModalOpen: true })}
-            onClose={closeDeleteModal}
-        >
-            <Modal.Header>Confirmation</Modal.Header>
-            <Modal.Content>
-                <h3>Are you sure you want to delete the Menu ?</h3>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button onClick={closeDeleteModal} basic>
-                    Cancel
-        </Button>
-                <Button onClick={removeMenu} negative>
-                    Delete
-        </Button>
-            </Modal.Actions>
-        </Modal>
+        <DeleteModal
+            title="Are you sure you want to delete this account ?"
+            deleteModalOpen={deleteModalOpen}
+            closeDeleteModal={closeDeleteModal}
+            submit={removeMenu}
+        />
     );
 
 
@@ -449,7 +435,7 @@ const Menus = ({ history }) => {
     const onSort = (list) => {
         let newList = []
         list.forEach(elem => {
-            newList.push({_id: elem.content.key, order: elem.rank})
+            newList.push({ _id: elem.content.key, order: elem.rank })
         })
         updateMenusOrder(newList)
     }

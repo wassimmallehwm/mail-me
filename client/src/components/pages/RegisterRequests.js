@@ -7,7 +7,7 @@ import Loading from '../Loading';
 import moment from 'moment';
 import NoData from '../NoData';
 import Emitter from '../../services/events';
-import EventsTypes from '../../utils/EventsTypes';
+import {ClientEvents} from '../../constants/EventConst'
 
 const RegisterRequests = () => {
 
@@ -42,7 +42,7 @@ const RegisterRequests = () => {
     const validateUser = (id) => {
         user && validate(user.token, id).then(
             (res) => {
-                Emitter.emit(EventsTypes.REQUESTS_NUMBER, res.data);
+                Emitter.emit(ClientEvents.requestsNumber, res.data);
                 removeItem(id);
                 Toast("SUCCESS", "User request validated successfully");
             },
@@ -56,7 +56,7 @@ const RegisterRequests = () => {
     const removeUser = (id) => {
         user && remove(user.token, id).then(
             (res) => {
-                Emitter.emit(EventsTypes.REQUESTS_NUMBER, res.data);
+                Emitter.emit(ClientEvents.requestsNumber, res.data);
                 removeItem(id);
                 Toast("SUCCESS", "User request rejected successfully");
             },

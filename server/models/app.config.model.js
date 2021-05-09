@@ -6,6 +6,10 @@ const AppConfigSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    guestUrl: {
+        type: String,
+        default: 'https://flowcv.me/wassimmalleh'
     }
 }, {
     timestamps: true
