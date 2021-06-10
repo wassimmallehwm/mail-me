@@ -10,6 +10,7 @@
     "compress.js": "^1.1.2",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
+    "emoji-mart": "^3.0.1",
     "eventemitter3": "^4.0.7",
     "formiojs": "^4.12.4",
     "i18next": "^19.9.1",

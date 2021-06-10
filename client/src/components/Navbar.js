@@ -155,7 +155,7 @@ const Navbar = ({ history, toggleSidebar, changeLanguage }) => {
   const [activeItem, setaAtiveItem] = useState(path)
 
   const navbar = user ? (
-    <Menu pointing secondary size="massive" color="teal">
+    <Menu className="ui-navbar" pointing secondary size="massive" color="teal">
       <Menu.Item onClick={toggleSidebar}>
         <Icon name="sidebar" size='large' />
       </Menu.Item>

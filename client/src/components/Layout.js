@@ -8,7 +8,7 @@ const Layout = ({sidebarVisible, closeSidebar, children}) => {
     const {user} = useContext(AuthContext);
 
     return (
-        <>
+        <div style={{height: 'calc(100% - 75px)', marginTop: '75px'}}>
         {user ? (
             <Suspense fallback={<Loading/>}>
                 <SideBar closeSidebar={closeSidebar} visible={sidebarVisible}>
@@ -19,7 +19,7 @@ const Layout = ({sidebarVisible, closeSidebar, children}) => {
             </Suspense>
         ) : children
         }
-        </>
+        </div>
     )
 }
 
