@@ -2,9 +2,10 @@ import React, {lazy, Suspense, useContext} from 'react'
 import { Container } from 'semantic-ui-react';
 import { AuthContext } from '../context/auth';
 import Loading from './Loading';
+import Footer from './layout/footer/Footer';
 const SideBar = lazy(() => import('./SideBar'));
 
-const Layout = ({sidebarVisible, closeSidebar, children}) => {
+const Layout = ({sidebarVisible, closeSidebar, changeLanguage, children}) => {
     const {user} = useContext(AuthContext);
 
     return (
@@ -19,6 +20,7 @@ const Layout = ({sidebarVisible, closeSidebar, children}) => {
             </Suspense>
         ) : children
         }
+        <Footer changeLanguage={changeLanguage}/>
         </div>
     )
 }

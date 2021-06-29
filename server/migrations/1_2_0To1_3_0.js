@@ -8,30 +8,30 @@ const Message = require('../models/message.model');
 
 module.exports.v1_2_0To1_3_0 = async (callback) => {
 
-    // const adminRole = await Role.findOne({label: 'ADMIN'}).select('_id').lean();
+    const adminRole = await Role.findOne({label: 'ADMIN'}).select('_id').lean();
 
-    // const settings = {
-    //     label: 'Settings',
-    //     url : '/settings',
-    //     roles : [adminRole._id]
-    // }
+    const settings = {
+        label: 'Settings',
+        url : '/settings',
+        roles : [adminRole._id]
+    }
 
-    // await Menu.updateOne({label: 'Accounts'}, settings);
+    await Menu.updateOne({url: '/accounts'}, settings);
 
-    // const config = await AppConfig.findOne();
-    // config.guestUrl = "https://flowcv.me/wassimmalleh";
-    // await config.save()
+    await Menu.updateOne({url: '/menus'}, {symbole: 'list'});
 
-    // await Conversation.updateMany({}, {enabled: true})
+    const config = await AppConfig.findOne();
+    config.guestUrl = "https://flowcv.me/wassimmalleh";
+    await config.save()
 
-    // await Message.updateMany({}, {seen: new Date()})
+    await Conversation.updateMany({}, {enabled: true})
 
-    // const users = await User.find();
-    // users.forEach(user => {
-    //     user.images = [user.imagePath]
-    //     user.save().then(() => {console.log("success")})
-    // })
+    await Message.updateMany({}, {seen: new Date()})
 
-
+    const users = await User.find();
+    users.forEach(user => {
+        user.images = [user.imagePath]
+        user.save().then(() => {console.log("success")})
+    })
     await callback('1.2.0', '1.3.0');
 }

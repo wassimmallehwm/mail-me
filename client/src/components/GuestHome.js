@@ -31,7 +31,8 @@ const GuestHome = () => {
     (
       <div style={{
         height: 'calc(100vh - 52px)',
-        width: '100vw'
+        width: '100vw',
+        marginTop: '-55px'
       }}>          
       <iframe src={guestUrl} style={{
         height: '100%',

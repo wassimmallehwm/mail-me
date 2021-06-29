@@ -1,0 +1,19 @@
+#footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  z-index: 50;
+  background-color: rgb(245, 245, 245) !important;
+  border: none!important;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 20%), 0 -6px 20px rgb(0 0 0 / 19%) !important;
+}
+
+.footer-content{
+    height: 100%;
+    margin: 0 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}

@@ -57,9 +57,9 @@ const App = () => {
       <SocketProvider>
         <Router >
           <Suspense fallback={(<Loading />)}>
-            <Navbar history={history} toggleSidebar={toggleSidebar} changeLanguage={changeLanguage} />
+            <Navbar history={history} toggleSidebar={toggleSidebar}/>
             <ToastContainer />
-            <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar}>
+            <Layout sidebarVisible={sidebarVisible} closeSidebar={closeSidebar} changeLanguage={changeLanguage}>
               <Switch>
                 <Route exact path="/" component={Home} />
                 <ProtectedRoute exact path="/messenger" component={Messenger} />
